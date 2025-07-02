@@ -1,26 +1,43 @@
+/* eslint-disable no-console */
 import express from 'express'
-import { mapOrder } from '~/utils/sorts.js'
+import exitHook from 'async-exit-hook'
+import { CONNECT_DB, CLOSE_DB } from '~/config/mongodb'
+import { env } from '~/config/environment'
+const START_SERVER = () => {
+  const app = express()
 
-const app = express()
+  app.get('/', async (req, res) => {
+    // process.exit(0)
+    res.end('<h1>Hello World!</h1><hr>')
+  })
 
-const hostname = 'localhost'
-const port = 3000
+  app.listen(env.APP_PORT, env.APP_NAME, () => {
+    console.log(`I am ${env.AUTHOR} running at ${ env.APP_NAME }:${ env.APP_PORT }/`)
+  })
 
-app.get('/', (req, res) => {
-  // eslint-disable-next-line no-console
-  console.log(mapOrder(
-    [{ id: 'id-1', name: 'One' },
-      { id: 'id-2', name: 'Two' },
-      { id: 'id-3', name: 'Three' },
-      { id: 'id-4', name: 'Four' },
-      { id: 'id-5', name: 'Five' }],
-    ['id-5', 'id-4', 'id-2', 'id-3', 'id-1'],
-    'id'
-  ))
-  res.end('<h1>Hello World!</h1><hr>')
-})
+  exitHook(() => {
+    console.log('Server is shutting down...')
+    CLOSE_DB()
+    console.log('Disconnected from MongoDB Cloud Atlas')
+  })
+}
+// IIFE trong JavaScript: Hàm được gọi thực thi ngay lập tức
+(async () => {
+  try {
+    await CONNECT_DB()
+    console.log('Connected to MongoDB Cloud Atlas!')
+    START_SERVER()
+  } catch (error) {
+    console.error(error)
+    process.exit(0)
+  }
+})()
 
-app.listen(port, hostname, () => {
-  // eslint-disable-next-line no-console
-  console.log(`I am running at ${ hostname }:${ port }/`)
-})
+// // Chỉ khi Kết nối tới Database thành công thì mới Start Server Back-end lên.
+// CONNECT_DB() //vì CONNECT_DB này là 1 async thì nó trả về 1 promise
+//   .then(() => console.log('Connected to MongoDB Cloud Atlas!'))
+//   .then(() => START_SERVER()) //sẽ được thực thi ngay sau khi cái then trước đó hoàn tất, bất kể bạn return gì.
+//   .catch(error => {
+//     console.error(error)
+//     process.exit(0) //sẽ tắt luôn chương trình Node.js ngay lập tức — kể cả đó là một server
+//   })
