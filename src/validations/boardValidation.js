@@ -26,11 +26,7 @@ và Front-end.
     // await correctCondition.validateAsync(undefined)
     await correctCondition.validateAsync(req.body, { abortEarly:false })
 
-    // next()
-    res.status(StatusCodes.CREATED).json({
-      message: 'API create new board',
-      code: StatusCodes.CREATED
-    })
+    next()
   } catch (error) {
     // console.log(error)
     //error là thư viện tự sinh ra
