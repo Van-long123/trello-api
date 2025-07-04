@@ -7,9 +7,10 @@ const createNew = async (req, res, next) => {
       code: StatusCodes.CREATED
     })
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      errors: error.message
-    })
+    next(error)
+    // res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+    //   errors: error.message
+    // })
   }
 }
 export const boardController = {
