@@ -1,5 +1,6 @@
 import Joi from 'joi'
 import { StatusCodes } from 'http-status-codes'
+import ApiError from '~/utils/ApiError'
 const createNew = async (req, res, next) => {
 /*Note: Mặc định chúng ta không cần phải custom message validate ở phía BE làm gì vì để cho Front-end tự
 validate và custom message phía FE cho đẹp. I
@@ -25,14 +26,15 @@ và Front-end.
     // Kiểm tra dữ liệu Fe gửi lên có đúng với điều kiện ko
     // await correctCondition.validateAsync(undefined)
     await correctCondition.validateAsync(req.body, { abortEarly:false })
-
     next()
   } catch (error) {
-    // console.log(error)
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))
+    // console.log(error.message)
+    // console.log(new Error(error).message)
     //error là thư viện tự sinh ra
-    res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
-      errors: new Error(error).message
-    })
+    // res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+    //   errors: new Error(error).message
+    // })
   }
 }
 export const boardValidation = {
