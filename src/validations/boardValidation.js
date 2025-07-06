@@ -15,6 +15,7 @@ và Front-end.
     title: Joi.string().required().min(3).max(50).trim().strict().messages({
       'any.required': 'Yêu cầu phải có tiêu đề',
       'string.empty': 'Tiêu đề không được để trống',
+      'string.base': 'Tiêu đề phải là chuỗi ký tự',
       'string.min': 'Tiêu đề tối thiểu 3 ký tự',
       'string.max': 'Tiêu đề tối đa 50 ký tự',
       'string.trim': 'Tiêu đề không được có khoảng trắng ở đầu hoặc cuối'
