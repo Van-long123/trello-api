@@ -1,6 +1,8 @@
 import Joi from 'joi'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
+import { BOARD_TYPES } from '~/utils/constants'
+
 const createNew = async (req, res, next) => {
 /*Note: Mặc định chúng ta không cần phải custom message validate ở phía BE làm gì vì để cho Front-end tự
 validate và custom message phía FE cho đẹp. I
@@ -20,7 +22,8 @@ và Front-end.
       'string.max': 'Tiêu đề tối đa 50 ký tự',
       'string.trim': 'Tiêu đề không được có khoảng trắng ở đầu hoặc cuối'
     }),
-    description: Joi.string().required().min(3).max(256).trim().strict()
+    description: Joi.string().required().min(3).max(256).trim().strict(),
+    type: Joi.string().valid(BOARD_TYPES.PUBLIC, BOARD_TYPES.PRIVATE).required()
   })
   try {
     // console.log(req.body)
