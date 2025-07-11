@@ -22,6 +22,9 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
   _destroy: Joi.boolean().default(false)
 })
 
+// Chỉ định ra những Fields mà chúng ta không muốn cho phép cập nhật trong hàm update
+const INVALID_UPDATE_FIELDS = ['_id', 'createdAt']
+
 const validateBeforeCreate = async (data) => {
   return await BOARD_COLLECTION_SCHEMA.validateAsync(data, { abortEarly:false })
 }
@@ -81,7 +84,7 @@ const pushColumnOrderIds = async (column) => {
       {
         _id: new ObjectId(column.boardId)
         // _destroy: false ko cần thiết vì tạo mới column thì chắc chắn có rồi
-      }, // điều kiện tìm; nếu ko tìm thấy thì result.value là null
+      }, // điều kiện tìm; nếu ko tìm thấy thì result là null
       {
         $push: { columnOrderIds: new ObjectId(column._id) }
       }, // thao tác cập nhật
@@ -95,11 +98,33 @@ const pushColumnOrderIds = async (column) => {
     throw new Error(error)
   }
 }
+
+const update = async (boardId, updateData) => {
+  try {
+    // Lọc ra những field mà ta không cho phép cập nhật
+    Object.keys(updateData).forEach(fieldName => {
+      if (INVALID_UPDATE_FIELDS.includes(fieldName)) {
+        delete updateData[fieldName]
+      }
+    })
+    console.log(updateData)
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(boardId) },
+      { $set: updateData },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const boardModel = {
   BOARD_COLLECTION_NAME,
   BOARD_COLLECTION_SCHEMA,
   createNew,
   findOneById,
   getDetails,
-  pushColumnOrderIds
+  pushColumnOrderIds,
+  update
 }
