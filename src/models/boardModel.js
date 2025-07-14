@@ -92,7 +92,6 @@ const pushColumnOrderIds = async (column) => {
         returnDocument: 'after'
       } // trả về document sau khi cập nhật (default là 'before' Trả về document TRƯỚC khi cập nhật)
     )
-    // console.log(result.value)
     return result
   } catch (error) {
     throw new Error(error)
@@ -124,6 +123,19 @@ const update = async (boardId, updateData) => {
   }
 }
 
+const pullColumnOrderIds = async (column) => {
+  try {
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(column.boardId) },
+      { $pull: { columnOrderIds: new ObjectId(column._id ) } },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const boardModel = {
   BOARD_COLLECTION_NAME,
   BOARD_COLLECTION_SCHEMA,
@@ -131,5 +143,6 @@ export const boardModel = {
   findOneById,
   getDetails,
   pushColumnOrderIds,
-  update
+  update,
+  pullColumnOrderIds
 }
