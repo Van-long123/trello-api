@@ -19,7 +19,7 @@ const createNew = async (reqBody) => {
       await boardModel.pushColumnOrderIds(getNewColumn)
     }
 
-    return { getNewColumn, message: 'Column created successfully!' }
+    return { getNewColumn, message: 'New column has been added!' }
   } catch (error) {
     throw error
   }
