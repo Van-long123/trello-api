@@ -20,9 +20,18 @@ const START_SERVER = () => {
   //Middleware xử lý lỗi tập chung
   app.use(errorHandlingMiddleware)
 
-  app.listen(env.APP_PORT, env.APP_NAME, () => {
-    console.log(`I am ${env.AUTHOR} running at ${ env.APP_NAME }:${ env.APP_PORT }/`)
-  })
+  //Môi trường production
+  if (env.BUILD_MODE === 'production') {
+    // Môi trường thằng render nó tự động tạo PORT
+    app.listen(process.env.PORT, () => {
+      console.log(`Production: I am ${env.AUTHOR} running at PORT: ${ process.env.PORT }/`)
+    })
+  } else {
+    //Môi trường Local Dev
+    app.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_NAME, () => {
+      console.log(`Local Dev: I am ${env.AUTHOR} running at ${ env.LOCAL_DEV_APP_NAME }:${ env.LOCAL_DEV_APP_PORT }/`)
+    })
+  }
 
   exitHook(() => {
     console.log('Server is shutting down...')
