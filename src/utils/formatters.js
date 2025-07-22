@@ -1,3 +1,5 @@
+import { pick } from 'lodash'
+
 // Method to Convert a String to Slug
 export const slugify = (val) => {
   if (!val) return ''
@@ -9,4 +11,10 @@ export const slugify = (val) => {
     .replace(/[^a-z0-9 -]/g, '')
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-')
+}
+
+// để lấy ra các trường cụ thể từ một user
+export const pickUser = (user) => {
+  if (!user) return {}
+  return pick(user, ['_id', 'email', 'username', 'displayName', 'avatar', 'role', 'isActive', 'createdAt', 'updatedAt'])
 }
