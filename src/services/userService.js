@@ -4,6 +4,9 @@ import ApiError from '~/utils/ApiError'
 import bcryptjs from 'bcryptjs'
 import { v4 as uuidv4 } from 'uuid'
 import { pickUser } from '~/utils/formatters'
+import { WEBSITE_DOMAIN } from '~/utils/constants'
+import { BrevoProvider } from '~/providers/BrevoProvider'
+import { sendMail } from '~/utils/sendMail'
 
 const createNew = async (reqBody) => {
   try {
@@ -26,6 +29,119 @@ const createNew = async (reqBody) => {
     const getNewUser = await userModel.findOneById(createdUser.insertedId)
 
     // Gửi email cho người dùng xác thực tài khoản
+    const verificationLink = `${WEBSITE_DOMAIN}/account/verification?email=${getNewUser.email}&token=${getNewUser.verifyToken}`
+    const customSubject = 'Trello App: Please verify your email before using our services!'
+    const htmlContent = `
+      <div style="
+        background: #ffffff; 
+        max-width: 600px; 
+        margin: 0 auto; 
+        border-radius: 16px; 
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1); 
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.2);
+      ">
+      <!-- Header -->
+      <div style="
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+        padding: 40px 20px; 
+        text-align: center; 
+        color: white;
+        ">
+        <div style="
+          background: rgba(255,255,255,0.2); 
+          width: 80px; 
+          height: 80px; 
+          border-radius: 50%; 
+          display: inline-flex; 
+          align-items: center; 
+          justify-content: center; 
+          margin-bottom: 20px;
+          ">
+          <span style="font-size: 36px; width: 100%; margin: 6px 0 0 10px">🔐</span>
+        </div>
+        <h1 style="
+          margin: 0; 
+          font-size: 28px; 
+          font-weight: 600; 
+          letter-spacing: -0.5px;
+        ">Verify Your Email</h1>
+      </div>
+
+      <!-- Content -->
+      <div style="padding: 40px 30px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h2 style="
+            color: #2d3748; 
+            font-size: 20px; 
+            font-weight: 500; 
+            margin: 0 0 15px 0; 
+            line-height: 1.4;
+          ">Hello there! 👋</h2>
+          <p style="
+            color: #718096; 
+            font-size: 16px; 
+            line-height: 1.6; 
+            margin: 0 auto; 
+            max-width: 400px;
+          ">
+            We received a request to verify your email address. Click the button below to complete the verification process.
+          </p>
+        </div>
+
+        <!-- Button -->
+        <div style="text-align: center; margin: 40px 0;">
+          <a href="${verificationLink}" style="
+            display: inline-block; 
+            padding: 16px 32px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: #ffffff; 
+            text-decoration: none; 
+            border-radius: 50px; 
+            font-weight: 600; 
+            font-size: 16px; 
+            letter-spacing: 0.5px;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+          ">
+            ✅ Verify Email Address
+          </a>
+        </div>
+
+        <!-- Security notice -->
+        <div style="text-align: center; margin-top: 30px;">
+          <p style="
+            color: #a0aec0; 
+            font-size: 14px; 
+            line-height: 1.5; 
+            margin: 0;
+          ">
+            🛡️ If you didn't request this verification, you can safely ignore this email.
+          </p>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div style="
+          background: #f8fafc; 
+          padding: 30px; 
+          text-align: center; 
+          border-top: 1px solid #e2e8f0;
+      ">
+        <p style="
+            color: #a0aec0; 
+            font-size: 12px; 
+            margin: 0; 
+            line-height: 1.4;
+        ">
+          This email was sent from <strong>Trello</strong><br>
+          125 Cửa Đại, Hội An
+        </p>
+      </div>
+    </div>
+    `
+    // Thực hiện gửi mail
+    // await BrevoProvider.sendEmail(getNewUser.email, customSubject, htmlContent)
+    sendMail(getNewUser.email, customSubject, htmlContent)
 
     // Return về dữ liệu cho Controller
     return pickUser(getNewUser)

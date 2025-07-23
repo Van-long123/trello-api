@@ -1,6 +1,6 @@
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
-import { EMAIL_RULE, EMAIL_RULE_MESSAGE, PASSWORD_RULE, PASSWORD_RULE_MESSAGE } from '~/utils/validators'
+import { EMAIL_RULE, EMAIL_RULE_MESSAGE } from '~/utils/validators'
 import { GET_DB } from '~/config/mongodb'
 
 const USER_ROLES = {
