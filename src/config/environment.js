@@ -6,5 +6,17 @@ export const env = {
   LOCAL_DEV_APP_NAME: process.env.LOCAL_DEV_APP_HOST,
   LOCAL_DEV_APP_PORT: process.env.LOCAL_DEV_APP_PORT,
   AUTHOR: process.env.AUTHOR,
+
+  // Nodemailer
+  EMAIL_USER: process.env.EMAIL_USER,
+  EMAIL_PASSWORD: process.env.EMAIL_PASSWORD,
+
+  // Brevo
+  BREVO_API_KEY: process.env.BREVO_API_KEY,
+  ADMIN_EMAIL_ADDRESS: process.env.ADMIN_EMAIL_ADDRESS,
+  ADMIN_EMAIL_NAME: process.env.ADMIN_EMAIL_NAME,
+
+  WEBSITE_DOMAIN_DEV: process.env.WEBSITE_DOMAIN_DEV,
+  WEBSITE_DOMAIN_PROD: process.env.WEBSITE_DOMAIN_PROD,
   BUILD_MODE: process.env.BUILD_MODE
 }
