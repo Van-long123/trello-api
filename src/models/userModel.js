@@ -70,9 +70,6 @@ const update = async (userId, updateData) => {
       }
     })
 
-    //Đối với dữ liệu liên quan tới ObjectId biến đổi ở đây
-    if (updateData.columnId) updateData.columnId = new ObjectId(updateData.columnId)
-
     const result = await GET_DB().collection(USER_COLLECTION_NAME).findOneAndUpdate(
       { _id: new ObjectId(userId) },
       { $set: updateData },

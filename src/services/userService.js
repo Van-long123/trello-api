@@ -5,15 +5,15 @@ import bcryptjs from 'bcryptjs'
 import { v4 as uuidv4 } from 'uuid'
 import { pickUser } from '~/utils/formatters'
 import { WEBSITE_DOMAIN } from '~/utils/constants'
-import { BrevoProvider } from '~/providers/BrevoProvider'
 import { sendMail } from '~/utils/sendMail'
+import { env } from '~/config/environment'
+import { jwtProvider } from '~/providers/JwtProvider'
 
 const createNew = async (reqBody) => {
   try {
     // Kiểm tra xem email có tồn tại trong Database chưa
     const existUser = await userModel.findOneByEmail(reqBody.email)
     if (existUser) throw new ApiError(StatusCodes.CONFLICT, 'Email already exists!')
-
     // Tạo Data để lưu vào Database
     const nameFromEmail = reqBody.email.split('@')[0]
     const newUser = {
@@ -150,6 +150,61 @@ const createNew = async (reqBody) => {
   }
 }
 
+const verifyAccount = async (reqBody) => {
+  try {
+    const existUser = await userModel.findOneByEmail(reqBody.email)
+    if (!existUser) throw new ApiError(StatusCodes.NOT_FOUND, 'Account not found!')
+    if (existUser.isActive) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Your account is already!')
+    if (existUser.verifyToken !== reqBody.token) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Token is invalid!')
+
+    const updateData = {
+      isActive: true,
+      verifyToken: null
+    }
+
+    const updatedUser = await userModel.update(existUser._id, updateData)
+    return pickUser(updatedUser)
+  } catch (error) {
+    throw error
+  }
+}
+
+const login = async (reqBody) => {
+  try {
+    const existUser = await userModel.findOneByEmail(reqBody.email)
+
+    if (!existUser) throw new ApiError(StatusCodes.NOT_FOUND, 'Account not found!')
+    if (!existUser.isActive) throw new ApiError(StatusCodes.FORBIDDEN, 'Your account is not active!')
+    if (!bcryptjs.compareSync(reqBody.password, existUser.password)) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid email or password!')
+    }
+    // Nếu mọi thứ ok thì bắt đầu tạo Tokens đăng nhập để trả về cho phía FE
+    // Tạo thông tin để đính kèm trong JWT Token: bao gồm id và email của user
+    const userInfo = {
+      _id: existUser._id,
+      email: existUser.email
+    }
+    // Tạo ra 2 loại token, accessToken và refreshToken để trả về cho phía FE
+    const accessToken = await jwtProvider.generateToken(
+      userInfo,
+      env.ACCESS_TOKEN_PRIVATE_KEY,
+      env.ACCESS_TOKEN_LIFE
+    )
+
+    const refreshToken = await jwtProvider.generateToken(
+      userInfo,
+      env.REFRESH_TOKEN_PRIVATE_KEY,
+      env.REFRESH_TOKEN_LIFE
+    )
+    // Trả về thông tin của user kèm theo 2 cái token vừa tạo
+    return { accessToken, refreshToken, ...pickUser(existUser) }
+  } catch (error) {
+    throw error
+  }
+}
+
 export const userService = {
-  createNew
+  createNew,
+  verifyAccount,
+  login
 }
