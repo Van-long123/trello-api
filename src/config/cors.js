@@ -28,7 +28,5 @@ export const corsOptions = {
   optionsSuccessStatus: 200,
 
   // CORS sẽ cho phép nhận cookies từ request,
-  //đính kèm jwt access token và refresh token vào httpOnly Cookies,axios call API sẽ đính kèm cookie vào request
-  //để được cookie ấy và pass qua được cors thì phải có credentials: true
   credentials: true
 }

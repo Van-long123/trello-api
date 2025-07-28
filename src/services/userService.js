@@ -188,14 +188,15 @@ const login = async (reqBody) => {
     const accessToken = await jwtProvider.generateToken(
       userInfo,
       env.ACCESS_TOKEN_PRIVATE_KEY,
-      env.ACCESS_TOKEN_LIFE
-      // 4
+      // env.ACCESS_TOKEN_LIFE
+      4
     )
 
     const refreshToken = await jwtProvider.generateToken(
       userInfo,
       env.REFRESH_TOKEN_PRIVATE_KEY,
       env.REFRESH_TOKEN_LIFE
+      // 15
     )
     // Trả về thông tin của user kèm theo 2 cái token vừa tạo
     return { accessToken, refreshToken, ...pickUser(existUser) }
@@ -204,8 +205,26 @@ const login = async (reqBody) => {
   }
 }
 
+const refreshToken = async (clientRefreshToken) => {
+  const refreshTokenDecoded = await jwtProvider.verifyToken(clientRefreshToken, env.REFRESH_TOKEN_PRIVATE_KEY)
+
+  const userInfo = {
+    _id: refreshTokenDecoded._id,
+    email: refreshTokenDecoded.email
+  }
+
+  const accessToken = await jwtProvider.generateToken(
+    userInfo,
+    env.ACCESS_TOKEN_PRIVATE_KEY,
+    env.ACCESS_TOKEN_LIFE
+    // 4
+  )
+  return { accessToken }
+}
+
 export const userService = {
   createNew,
   verifyAccount,
-  login
+  login,
+  refreshToken
 }
