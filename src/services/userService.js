@@ -174,9 +174,9 @@ const login = async (reqBody) => {
     const existUser = await userModel.findOneByEmail(reqBody.email)
 
     if (!existUser) throw new ApiError(StatusCodes.NOT_FOUND, 'Account not found!')
-    if (!existUser.isActive) throw new ApiError(StatusCodes.FORBIDDEN, 'Your account is not active!')
+    if (!existUser.isActive) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Your account is not active!')
     if (!bcryptjs.compareSync(reqBody.password, existUser.password)) {
-      throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid email or password!')
+      throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Invalid email or password!')
     }
     // Nếu mọi thứ ok thì bắt đầu tạo Tokens đăng nhập để trả về cho phía FE
     // Tạo thông tin để đính kèm trong JWT Token: bao gồm id và email của user
@@ -188,8 +188,8 @@ const login = async (reqBody) => {
     const accessToken = await jwtProvider.generateToken(
       userInfo,
       env.ACCESS_TOKEN_PRIVATE_KEY,
-      // env.ACCESS_TOKEN_LIFE
-      4
+      env.ACCESS_TOKEN_LIFE
+      // 4
     )
 
     const refreshToken = await jwtProvider.generateToken(
@@ -206,25 +206,65 @@ const login = async (reqBody) => {
 }
 
 const refreshToken = async (clientRefreshToken) => {
-  const refreshTokenDecoded = await jwtProvider.verifyToken(clientRefreshToken, env.REFRESH_TOKEN_PRIVATE_KEY)
+  try {
+    const refreshTokenDecoded = await jwtProvider.verifyToken(clientRefreshToken, env.REFRESH_TOKEN_PRIVATE_KEY)
 
-  const userInfo = {
-    _id: refreshTokenDecoded._id,
-    email: refreshTokenDecoded.email
+    const userInfo = {
+      _id: refreshTokenDecoded._id,
+      email: refreshTokenDecoded.email
+    }
+
+    const accessToken = await jwtProvider.generateToken(
+      userInfo,
+      env.ACCESS_TOKEN_PRIVATE_KEY,
+      env.ACCESS_TOKEN_LIFE
+      // 4
+    )
+    return { accessToken }
+  } catch (error) {
+    throw error
   }
+}
 
-  const accessToken = await jwtProvider.generateToken(
-    userInfo,
-    env.ACCESS_TOKEN_PRIVATE_KEY,
-    env.ACCESS_TOKEN_LIFE
-    // 4
-  )
-  return { accessToken }
+const update = async (userId, reqBody) => {
+  try {
+    // Query User và Kiểm tra chắc chắn
+    const existUser = await userModel.findOneById(userId)
+    if (!existUser) throw new ApiError(StatusCodes.NOT_FOUND, 'Account not found!')
+    if (!existUser.isActive) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Your account is not active!')
+
+    // Khởi tạo update User ban đầu là empty
+    let updatedUser = {}
+
+    // Trường hợp change password
+    if (reqBody.current_password && reqBody.new_password) {
+      // Kiểm tra xem current_password có đúng ko
+      if (!bcryptjs.compareSync(reqBody.current_password, existUser.password)) {
+        throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Your current password is incorrect!')
+      }
+
+      updatedUser = await userModel.update(existUser._id, {
+        password: bcryptjs.hashSync(reqBody.new_password, 8)
+      })
+    }
+    else {
+      // Trường hợp cập nhật các thông tin chung
+      const updateData = {
+        ...reqBody,
+        updatedAt: Date.now()
+      }
+      updatedUser = await userModel.update(existUser._id, updateData)
+    }
+    return pickUser(updatedUser)
+  } catch (error) {
+    throw error
+  }
 }
 
 export const userService = {
   createNew,
   verifyAccount,
   login,
-  refreshToken
+  refreshToken,
+  update
 }
