@@ -8,6 +8,7 @@ import { WEBSITE_DOMAIN } from '~/utils/constants'
 import { sendMail } from '~/utils/sendMail'
 import { env } from '~/config/environment'
 import { jwtProvider } from '~/providers/JwtProvider'
+import { CloudinaryProvider } from '~/providers/cloudinaryProvider'
 
 const createNew = async (reqBody) => {
   try {
@@ -226,7 +227,7 @@ const refreshToken = async (clientRefreshToken) => {
   }
 }
 
-const update = async (userId, reqBody) => {
+const update = async (userId, reqBody, userAvatarFile) => {
   try {
     // Query User và Kiểm tra chắc chắn
     const existUser = await userModel.findOneById(userId)
@@ -244,7 +245,14 @@ const update = async (userId, reqBody) => {
       }
 
       updatedUser = await userModel.update(existUser._id, {
-        password: bcryptjs.hashSync(reqBody.new_password, 8)
+        password: bcryptjs.hashSync(reqBody.new_password, 8), updatedAt: Date.now()
+      })
+    }
+    else if (userAvatarFile) {
+      // Trường hợp upload file lên Cloudinary
+      const uploadResult = await CloudinaryProvider.streamUpload(userAvatarFile.buffer, 'trello-users')
+      updatedUser = await userModel.update(existUser._id, {
+        avatar: uploadResult.secure_url, updatedAt: Date.now()
       })
     }
     else {
