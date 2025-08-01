@@ -39,10 +39,13 @@ const INVALID_UPDATE_FIELDS = ['_id', 'createdAt']
 const validateBeforeCreate = async (data) => {
   return await BOARD_COLLECTION_SCHEMA.validateAsync(data, { abortEarly:false })
 }
-const createNew = async (data) => {
+const createNew = async (userId, data) => {
   try {
     const validData = await validateBeforeCreate(data)
-    const createdBoard = await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne(validData) //trả về acknowledged:true và insertedId:id nếu create success
+    const createdBoard = await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne({
+      ...validData,
+      ownerIds: [new ObjectId(userId)]
+    }) //trả về acknowledged:true và insertedId:id nếu create success
     return createdBoard
   } catch (error) {
     throw new Error(error)
@@ -58,17 +61,20 @@ const findOneById = async (id) => {
     throw new Error(error)
   }
 }
-const getDetails = async (boardId) => {
+const getDetails = async (userId, boardId) => {
   try {
-    // const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOne({
-    //   _id: new ObjectId(boardId)
-    // })
+    // User truy cập vào board cụ thể thì nó phải là thành viên của board đó
+    const queryConditions = [
+      { _id: new ObjectId(boardId) },
+      { _destroy: false },
+      { $or: [
+        { ownerIds: { $all: [new ObjectId(userId)] } },
+        { memberIds: { $all: [new ObjectId(userId)] } }
+      ] }
+    ]
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate([
       // $match kiểu chính xác lọc dữ liệu
-      { $match: {
-        _id: new ObjectId(boardId),
-        _destroy: false
-      } },
+      { $match: { $and: queryConditions } },
       { $lookup: {
         from: columnModel.COLUMN_COLLECTION_NAME, // Tên collection cần JOIN
         localField: '_id', //Trường ở collection hiện tại
@@ -181,7 +187,6 @@ const getBoards = async (userId, page, itemsPerPage) => {
       ],
       { collation: { locale: 'en' } }
     ).toArray()
-    console.log('🚀 ~ getBoards ~ query:', query)
     const res = query[0]
     return {
       // boards: res.queryBoards || [],
