@@ -9,7 +9,7 @@ const CARD_COLLECTION_SCHEMA = Joi.object({
   columnId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
 
   title: Joi.string().required().min(3).max(50).trim().strict(),
-  //optional là description không bắt buộc phải có dữ liệu.
+  //optional là description không bắt buộc phải có field trong reqBody.
   description: Joi.string().optional(),
   cover: Joi.string().default(null),
 
