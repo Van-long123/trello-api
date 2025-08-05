@@ -13,3 +13,13 @@ export const DEFAULT_PAGE = 1
 export const DEFAULT_ITEMS_PER_PAGE = 12
 
 export const WEBSITE_DOMAIN = (env.BUILD_MODE === 'production') ? env.WEBSITE_DOMAIN_PROD : env.WEBSITE_DOMAIN_DEV
+
+// Kiểu lời mời vào board....
+export const INVITATION_TYPES = {
+  BOARD_INVITATION:'BOARD_INVITATION' // Kiểu lời mời vào board
+}
+export const BOARD_INVITATION_STATUS = {
+  PENDING: 'PENDING',
+  ACCEPTED: 'ACCEPTED',
+  REJECTED: 'REJECTED'
+}
