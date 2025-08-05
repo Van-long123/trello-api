@@ -5,6 +5,7 @@ import { columnRoute } from './columnRoute'
 import { cardRoute } from './cardRoute'
 import { userRoute } from './userRoute'
 import { authMiddleware } from '~/middlewares/authMiddleware'
+import { invitationRoute } from './invitationRoute'
 
 const router = express.Router()
 
@@ -25,4 +26,8 @@ router.use('/cards', authMiddleware.isAuthorized, cardRoute)
 
 /** User APIs */
 router.use('/users', userRoute)
+
+/** Invitation APIs */
+router.use('/invitations', authMiddleware.isAuthorized, invitationRoute)
+
 export const APIs_V1 = router
