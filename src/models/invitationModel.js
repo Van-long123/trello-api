@@ -84,7 +84,7 @@ const update = async (invitationId, updateData) => {
     const result = await GET_DB().collection(INVITATION_COLLECTION_NAME).findOneAndUpdate(
       { _id: new ObjectId(invitationId) },
       { $set: updateData },
-      { ReturnDocument: 'after' }
+      { returnDocument: 'after' }
     )
     return result
   } catch (error) {

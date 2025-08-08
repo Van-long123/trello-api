@@ -11,4 +11,8 @@ Router.route('/board')
   )
 Router.route('/')
   .get(invitationController.getInvitations)
+
+Router.route('/board/:notificationId')
+  .put(invitationController.updateBoardInvitation)
+
 export const invitationRoute = Router

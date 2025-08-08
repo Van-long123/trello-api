@@ -68,7 +68,50 @@ const getInvitations = async (userId) => {
     throw error
   }
 }
+
+const updateBoardInvitation = async (userId, notificationId, status) => {
+  try {
+    // Tìm bản ghi invitation trong model
+    const getInvitation = await invitationModel.findOneById(notificationId)
+    if (!getInvitation) throw new ApiError(StatusCodes.NOT_FOUND, 'Invitation not found')
+
+    // sau khi có Invitaion rồi thì lấy full thông tin của board
+    const boardId = getInvitation.boardInvitation.boardId
+    const board = await boardModel.findOneById(boardId)
+    if (!board) throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found')
+
+    // Kiểm tra xem nếu status là ACCEPTED join board mà cái thằng user (invitee) đã là owner hoặc member
+    // của board rồi thì trả về thông báo lỗi luôn.
+    // 2 mảng memberIds và ownerIds của board nó đang là kiểu dữ liệu ObjectId nên cho nó về String
+    // hết luôn để check
+    const boardOwnerAndMemberIds = [...board.ownerIds, ...board.memberIds].toString()
+    if (status === BOARD_INVITATION_STATUS.ACCEPTED && boardOwnerAndMemberIds.includes(userId)) {
+      throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'You are already member of this board.')
+    }
+
+    // Tạo dữ liệu để update bản ghi Invitation
+    const updateData = {
+      boardInvitation: {
+        ...getInvitation.boardInvitation,
+        status: status
+      }
+    }
+
+    // Cập nhật status trong bản ghi Invitation
+    const updatedInvitation = await invitationModel.update(notificationId, updateData)
+
+    // Nếu trường hợp Accept một lời mời thành công, thì cần phải thêm thông tin của thằng user (userId) vào bản ghi memberIds trong collection board.
+    if (updatedInvitation.boardInvitation.status === BOARD_INVITATION_STATUS.ACCEPTED) {
+      await boardModel.pushMemberIds(boardId, userId)
+    }
+    return updatedInvitation
+  } catch (error) {
+    throw error
+  }
+}
+
 export const invitationService = {
   createNewBoardInvitation,
-  getInvitations
+  getInvitations,
+  updateBoardInvitation
 }
