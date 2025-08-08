@@ -3,6 +3,8 @@ import { ObjectId } from 'mongodb'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 import { GET_DB } from '~/config/mongodb'
 import { INVITATION_TYPES, BOARD_INVITATION_STATUS } from '~/utils/constants'
+import { userModel } from './userModel'
+import { boardModel } from './boardModel'
 
 const INVITATION_COLLECTION_NAME = 'invitations'
 const INVITATION_COLLECTION_SCHEMA = Joi.object({
@@ -10,10 +12,6 @@ const INVITATION_COLLECTION_SCHEMA = Joi.object({
   inviteeId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
   // Kiểu lời mời vào board....
   type: Joi.string().required().valid(...Object.values(INVITATION_TYPES)),
-  workspaceInvitation: Joi.object({
-    boardId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-    status: Joi.string().required().valid(...Object.values(BOARD_INVITATION_STATUS))
-  }),
   // Lời mời là board thì sẽ lưu thêm dữ liệu boardInvitation
   boardInvitation: Joi.object({
     boardId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
@@ -52,7 +50,7 @@ const createNewBoardInvitation = async (data) => {
     const createdInvitation = await GET_DB().collection(INVITATION_COLLECTION_NAME).insertOne(newInvitationToAdd)
     return createdInvitation
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -64,6 +62,7 @@ const findOneById = async (invitationId) => {
     throw new Error(error)
   }
 }
+
 
 const update = async (invitationId, updateData) => {
   try {
@@ -93,10 +92,50 @@ const update = async (invitationId, updateData) => {
   }
 }
 
+// Query tổng hợp (aggregate)
+// Lấy những bản ghi invitation thuộc về một user cụ thể
+const findByUser = async (userId) => {
+  try {
+    // User truy cập vào board cụ thể thì nó phải là thành viên của board đó
+    const queryConditions = [
+      { inviteeId: new ObjectId(userId) }, // Tìm theo inviteeId người được mời chính là người đang thực hiện request này
+      { _destroy: false }
+    ]
+    const results = await GET_DB().collection(INVITATION_COLLECTION_NAME).aggregate([
+      // $match kiểu chính xác lọc dữ liệu
+      { $match: { $and: queryConditions } },
+      { $lookup: {
+        from: userModel.USER_COLLECTION_NAME,
+        localField: 'inviterId',
+        foreignField: '_id',
+        as: 'inviter',
+        pipeline: [{ $project: { 'password':0, 'verifyToken':0 } }]
+      } },
+      { $lookup: {
+        from: userModel.USER_COLLECTION_NAME,
+        localField: 'inviteeId',
+        foreignField: '_id',
+        as: 'invitee',
+        pipeline: [{ $project: { 'password':0, 'verifyToken':0 } }]
+      } },
+      { $lookup: {
+        from: boardModel.BOARD_COLLECTION_NAME,
+        localField: 'boardInvitation.boardId',
+        foreignField: '_id',
+        as: 'board'
+      } }
+    ]).toArray()
+    return results
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const invitationModel = {
   INVITATION_COLLECTION_NAME,
   INVITATION_COLLECTION_SCHEMA,
   createNewBoardInvitation,
   findOneById,
-  update
+  update,
+  findByUser
 }

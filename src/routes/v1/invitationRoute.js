@@ -9,4 +9,6 @@ Router.route('/board')
     invitationValidation.createNewBoardInvitation,
     invitationController.createNewBoardInvitation
   )
+Router.route('/')
+  .get(invitationController.getInvitations)
 export const invitationRoute = Router
