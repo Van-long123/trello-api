@@ -195,7 +195,6 @@ const getBoards = async (userId, page, itemsPerPage, queryFilters) => {
 
       })
     }
-    console.log('🚀 ~ getBoards ~ queryConditions:', queryConditions)
     const query = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate(
       [
         { $match: { $and: queryConditions } },
