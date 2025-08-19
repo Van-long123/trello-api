@@ -10,7 +10,7 @@ import { errorHandlingMiddleware } from './middlewares/errorHandlingMiddleware'
 import cookieParser from 'cookie-parser'
 import socketIo from 'socket.io'
 import http from 'http'
-import { inviteUserToBoardSocket } from '~/sockets/inviteUserToBoardSocket'
+import { inviteUserToBoardSocket, userOfBoardSocket } from '~/sockets/inviteUserToBoardSocket'
 
 // const http = require('http');
 // const { Server } = require("socket.io");
@@ -44,6 +44,7 @@ const START_SERVER = () => {
   // Lắng nghe connection
   io.on('connection', (socket) => {
     inviteUserToBoardSocket(socket)
+    userOfBoardSocket(socket)
   })
   //Môi trường production
   if (env.BUILD_MODE === 'production') {

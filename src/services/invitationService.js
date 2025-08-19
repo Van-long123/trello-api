@@ -3,8 +3,6 @@ import { invitationModel } from '~/models/invitationModel'
 import { boardModel } from '~/models/boardModel'
 import { userModel } from '~/models/userModel'
 import ApiError from '~/utils/ApiError'
-import { sendMail } from '~/utils/sendMail'
-import { env } from '~/config/environment'
 import { INVITATION_TYPES, BOARD_INVITATION_STATUS } from '~/utils/constants'
 import { pickUser } from '~/utils/formatters'
 
@@ -20,6 +18,11 @@ const createNewBoardInvitation = async (reqBody, inviterId) => {
     //Nếu ko tồn tại 1 trong 3 thì throw lỗi về
     if (!inviter || !invitee || !board) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Inviter, Invitee or Board not found!')
+    }
+
+    const inviteeInBoard = await userModel.checkInviteeInBoardById(invitee._id, board._id)
+    if (inviteeInBoard) {
+      throw new ApiError(StatusCodes.CONFLICT, 'Invitee is already a member of a board!')
     }
 
     // Tạo data cần thiết để lưu vào Db

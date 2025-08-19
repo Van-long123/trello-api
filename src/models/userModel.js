@@ -2,6 +2,7 @@ import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { EMAIL_RULE, EMAIL_RULE_MESSAGE } from '~/utils/validators'
 import { GET_DB } from '~/config/mongodb'
+import { boardModel } from './boardModel'
 
 const USER_ROLES = {
   CLIENT : 'client',
@@ -81,6 +82,20 @@ const update = async (userId, updateData) => {
   }
 }
 
+const checkInviteeInBoardById = async (inviteeId, boardId) => {
+  try {
+    const result = await GET_DB().collection(boardModel.BOARD_COLLECTION_NAME).findOne({
+      _id: new ObjectId(boardId),
+      $or: [
+        { ownerIds: { $all: [new ObjectId(inviteeId)] } },
+        { memberIds: { $all: [new ObjectId(inviteeId)] } }
+      ]
+    })
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
 
 export const userModel = {
   USER_COLLECTION_NAME,
@@ -88,5 +103,6 @@ export const userModel = {
   createNew,
   findOneById,
   findOneByEmail,
-  update
+  update,
+  checkInviteeInBoardById
 }

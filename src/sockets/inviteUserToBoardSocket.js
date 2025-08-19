@@ -6,3 +6,9 @@ export const inviteUserToBoardSocket = (socket) => {
     socket.broadcast.emit('BE_USER_INVITED_TO_BOARD', invitation)
   })
 }
+
+export const userOfBoardSocket = (socket) => {
+  socket.on('FE_USER_OF_BOARD', (inviterId) => {
+    socket.broadcast.emit('BE_USER_OF_BOARD', inviterId)
+  })
+}
