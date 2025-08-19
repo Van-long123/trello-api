@@ -7,6 +7,7 @@ import { columnModel } from './columnModel'
 import { cardModel } from './cardModel'
 import { pagingSkipValue } from '~/utils/algorithms'
 import { userModel } from './userModel'
+import { slugify } from '~/utils/formatters'
 
 const BOARD_COLLECTION_NAME = 'boards'
 const BOARD_COLLECTION_SCHEMA = Joi.object({
@@ -191,7 +192,17 @@ const getBoards = async (userId, page, itemsPerPage, queryFilters) => {
         // Có phân biệt chữ hoa chữ thường
         // queryConditions.push({ [key]: { $regex: queryFilters[key] } })
         // Không phân biệt chữ hoa chữ thường
-        queryConditions.push({ [key]: { $regex: new RegExp(queryFilters[key], 'i') } })
+        if (key === 'title') {
+          queryFilters.slugTitle = slugify(queryFilters.title)
+          queryConditions.push(
+            {
+              $or: [
+                { [key]: { $regex: new RegExp(queryFilters[key], 'i') } },
+                { 'slug': { $regex: new RegExp(slugify(queryFilters[key]), 'i') } }
+              ]
+            }
+          )
+        }
 
       })
     }

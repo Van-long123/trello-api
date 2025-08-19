@@ -5,6 +5,8 @@ export const slugify = (val) => {
   if (!val) return ''
   return String(val)
     .normalize('NFKD')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'd')
     .replace(/[\u0300-\u036f]/g, '')
     .trim()
     .toLowerCase()
