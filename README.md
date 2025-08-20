@@ -1,6 +1,6 @@
-# Dự Án API Trello
+# ⚙️ Dự Án API Trello
 
-## 📋 Tổng Quan
+## 📖 Tổng Quan
 
 Dự án này là một API backend toàn diện, mô phỏng đầy đủ các chức năng cốt lõi của Trello. Hệ thống hỗ trợ quản lý bảng, cột, thẻ và người dùng thông qua API RESTful với đầy đủ các thao tác CRUD, đồng thời cung cấp khả năng xử lý nâng cao như di chuyển thẻ giữa các cột. Ngoài ra, dự án còn tích hợp phân quyền người dùng, xác thực email, tải lên hình ảnh, thông báo thời gian thực và nhiều tính năng mở rộng khác, mang đến một nền tảng backend mạnh mẽ và linh hoạt cho việc xây dựng ứng dụng quản lý công việc hiện đại.
 
@@ -271,3 +271,4 @@ Socket lắng nghe sự kiện từ client và phát tín hiệu đến các cli
 ### Cloudinary (Image Hosting)
 
 Cloudinary được tích hợp để lưu trữ hình ảnh như ảnh đại diện người dùng và hình ảnh đại diện cho thẻ.
+
