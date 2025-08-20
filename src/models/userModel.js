@@ -11,7 +11,7 @@ const USER_ROLES = {
 const USER_COLLECTION_NAME = 'users'
 const USER_COLLECTION_SCHEMA = Joi.object({
   email : Joi.string().required().pattern(EMAIL_RULE).message(EMAIL_RULE_MESSAGE), //unique
-  password: Joi.string().required(),
+  password: Joi.string().optional(),
   // username cắt ra từ email và ko unique
   username: Joi.string().required().trim().strict(),
   displayName: Joi.string().required().trim().strict(),
