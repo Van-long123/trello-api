@@ -85,11 +85,47 @@ const update = async (req, res, next) => {
   }
 }
 
+const googleCallback = async (req, res, next) => {
+  try {
+    if (!req.user) {
+      res.redirect('http://localhost:5173/login')
+      return
+    }
+    const result = await userService.googleCallback(req.user)
+    res.cookie('accessToken', result.accessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      maxAge: ms('14 days')
+    })
+    res.cookie('refreshToken', result.refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      maxAge: ms('14 days')
+    })
+    res.redirect(`http://localhost:5173/login-success?id=${result._id}&token=${result.accessToken}`)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const verifyGoogle = async (req, res, next) => {
+  try {
+    const result = await userService.verifyGoogle(req.body)
+    return res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const userController = {
   createNew,
   verifyAccount,
   login,
   logout,
   refreshToken,
-  update
+  update,
+  googleCallback,
+  verifyGoogle
 }

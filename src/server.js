@@ -11,7 +11,7 @@ import cookieParser from 'cookie-parser'
 import socketIo from 'socket.io'
 import http from 'http'
 import { inviteUserToBoardSocket, userOfBoardSocket } from '~/sockets/inviteUserToBoardSocket'
-
+import '~/config/passport'
 // const http = require('http');
 // const { Server } = require("socket.io");
 

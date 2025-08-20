@@ -269,10 +269,65 @@ const update = async (userId, reqBody, userAvatarFile) => {
   }
 }
 
+const googleCallback = async (reqBody) => {
+  try {
+    const email = reqBody.emails[0]?.value
+    const existUser = await userModel.findOneByEmail(email)
+    if (!existUser) {
+      const nameFromEmail = email.split('@')[0]
+      const newUser = {
+        email: email,
+        username: nameFromEmail,
+        displayName: nameFromEmail, // Mặc định để giống username khi tạo mới, sau thì có làm tính năng update lại user
+        isActive: true,
+        avatar: reqBody[0]?.value
+      }
+      await userModel.createNew(newUser)
+    }
+    const userInfo = {
+      _id: existUser._id,
+      email: existUser.email
+    }
+    // Tạo ra 2 loại token, accessToken và refreshToken để trả về cho phía FE
+    const accessToken = await jwtProvider.generateToken(
+      userInfo,
+      env.ACCESS_TOKEN_PRIVATE_KEY,
+      env.ACCESS_TOKEN_LIFE
+    )
+
+    const refreshToken = await jwtProvider.generateToken(
+      userInfo,
+      env.REFRESH_TOKEN_PRIVATE_KEY,
+      env.REFRESH_TOKEN_LIFE
+    )
+    // Trả về thông tin của user kèm theo 2 cái token vừa tạo
+    return { accessToken, refreshToken, ...pickUser(existUser) }
+  } catch (error) {
+    throw error
+  }
+}
+
+const verifyGoogle = async (reqBody) => {
+  const { id, token } = reqBody
+  if (!id || !token) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Missing id or token!')
+  }
+  const user = await userModel.findOneById(id)
+  if (!user) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'User not found!')
+  }
+  const accessTokenDecoded = await jwtProvider.verifyToken(token, env.ACCESS_TOKEN_PRIVATE_KEY)
+  if ((user._id).toString() !== accessTokenDecoded._id) {
+    throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid tokenLogin!')
+  }
+  return user
+}
 export const userService = {
   createNew,
   verifyAccount,
   login,
   refreshToken,
-  update
+  update,
+  googleCallback,
+  verifyGoogle
 }
