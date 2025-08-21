@@ -106,6 +106,7 @@ const socialAuthCallback = async (req, res, next) => {
       sameSite: 'none',
       maxAge: ms('14 days')
     })
+    console.log('🚀 ~ socialAuthCallback ~ WEBSITE_DOMAIN:', WEBSITE_DOMAIN)
     res.redirect(`${WEBSITE_DOMAIN}/login-success?id=${result._id}&token=${result.accessToken}`)
   } catch (error) {
     next(error)
