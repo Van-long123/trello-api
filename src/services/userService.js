@@ -269,16 +269,19 @@ const update = async (userId, reqBody, userAvatarFile) => {
   }
 }
 
-const googleCallback = async (reqBody) => {
+const socialAuthCallback = async (reqBody) => {
   try {
     const email = reqBody.emails[0]?.value
     const existUser = await userModel.findOneByEmail(email)
     if (!existUser) {
-      const nameFromEmail = email.split('@')[0]
+      let displayName = email.split('@')[0]
+      if (reqBody.displayName) {
+        displayName = reqBody.displayName
+      }
       const newUser = {
         email: email,
-        username: nameFromEmail,
-        displayName: nameFromEmail, // Mặc định để giống username khi tạo mới, sau thì có làm tính năng update lại user
+        username: displayName,
+        displayName: displayName, // Mặc định để giống username khi tạo mới, sau thì có làm tính năng update lại user
         isActive: true,
         avatar: reqBody[0]?.value
       }
@@ -307,7 +310,7 @@ const googleCallback = async (reqBody) => {
   }
 }
 
-const verifyGoogle = async (reqBody) => {
+const verifyOAuth = async (reqBody) => {
   const { id, token } = reqBody
   if (!id || !token) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Missing id or token!')
@@ -328,6 +331,6 @@ export const userService = {
   login,
   refreshToken,
   update,
-  googleCallback,
-  verifyGoogle
+  socialAuthCallback,
+  verifyOAuth
 }

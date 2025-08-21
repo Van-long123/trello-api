@@ -36,8 +36,18 @@ Router.get('/google/callback', (req, res, next) => {
     req.user=profile
     next()
   })(req, res, next)
-}, userController.googleCallback)
+}, userController.socialAuthCallback)
 
-Router.route('/verify-google')
-  .post(userController.verifyGoogle)
+Router.route('/verify-oauth')
+  .post(userController.verifyOAuth)
+
+// Login with facebook
+Router.get('/facebook', passport.authenticate('facebook', { scope: ['email'] }))
+Router.get('/facebook/callback', (req, res, next) => {
+  passport.authenticate('facebook', (err, profile) => {
+    req.user=profile
+    next()
+  })(req, res, next)
+}, userController.socialAuthCallback)
+
 export const userRoute = Router

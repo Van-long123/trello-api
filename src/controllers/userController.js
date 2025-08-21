@@ -2,6 +2,8 @@ import { StatusCodes } from 'http-status-codes'
 import ms from 'ms'
 import { userService } from '~/services/userService'
 import ApiError from '~/utils/ApiError'
+import { WEBSITE_DOMAIN } from '~/utils/constants'
+
 const createNew = async (req, res, next) => {
   try {
     const createdUser = await userService.createNew(req.body)
@@ -85,13 +87,13 @@ const update = async (req, res, next) => {
   }
 }
 
-const googleCallback = async (req, res, next) => {
+const socialAuthCallback = async (req, res, next) => {
   try {
     if (!req.user) {
-      res.redirect('http://localhost:5173/login')
+      res.redirect(`${WEBSITE_DOMAIN}/login`)
       return
     }
-    const result = await userService.googleCallback(req.user)
+    const result = await userService.socialAuthCallback(req.user)
     res.cookie('accessToken', result.accessToken, {
       httpOnly: true,
       secure: true,
@@ -104,15 +106,15 @@ const googleCallback = async (req, res, next) => {
       sameSite: 'none',
       maxAge: ms('14 days')
     })
-    res.redirect(`http://localhost:5173/login-success?id=${result._id}&token=${result.accessToken}`)
+    res.redirect(`${WEBSITE_DOMAIN}/login-success?id=${result._id}&token=${result.accessToken}`)
   } catch (error) {
     next(error)
   }
 }
 
-const verifyGoogle = async (req, res, next) => {
+const verifyOAuth = async (req, res, next) => {
   try {
-    const result = await userService.verifyGoogle(req.body)
+    const result = await userService.verifyOAuth(req.body)
     return res.status(StatusCodes.OK).json(result)
   } catch (error) {
     next(error)
@@ -126,6 +128,6 @@ export const userController = {
   logout,
   refreshToken,
   update,
-  googleCallback,
-  verifyGoogle
+  socialAuthCallback,
+  verifyOAuth
 }
