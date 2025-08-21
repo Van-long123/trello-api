@@ -6,20 +6,21 @@ import ApiError from '~/utils/ApiError'
 // Cấu hình CORS Option
 export const corsOptions = {
   origin: function (origin, callback) {
+    console.log('CORS Origin:', origin)
     // Cho phép việc gọi API bằng POSTMAN trên môi trường dev,
     // Thông thường khi sử dụng postman thì cái origin sẽ có giá trị là undefined
     //khi chúng ta deploy dự án lên một Server Production thì sẽ sửa lại đoạn này thêm một chút nữa để phù hợp với từng môi trường production hoặc dev.
-    if (env.BUILD_MODE === 'dev') {
-      return callback(null, true)
-    }
+    // if (env.BUILD_MODE === 'dev') {
+    //   return callback(null, true)
+    // }
 
     // Kiểm tra xem origin có phải là origin được chấp nhận hay không
-    if (WHITELIST_ORIGIN.includes(origin)) {
+    // if (WHITELIST_ORIGIN.includes(origin)) {
       return callback(null, true) //null có nghĩa là ko có lỗi, true là cho phép đi qua để truy cập tài nguyên
-    }
+    // }
 
     // Cuối cùng nếu origin không được chấp nhận thì trả về lỗi
-    return callback(new ApiError(StatusCodes.FORBIDDEN, `${origin} not allowed by our CORS Policy.`))
+    // return callback(new ApiError(StatusCodes.FORBIDDEN, `${origin} not allowed by our CORS Policy.`))
   },
 
   // Some legacy browsers (IE11, various SmartTVs) choke on 204
