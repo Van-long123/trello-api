@@ -17,8 +17,9 @@ const getBoards = async (req, res, next) => {
 const createNew = async (req, res, next) => {
   try {
     const userId = req.jwtDecoded._id
+    const boardBackground = req.file
     // Điều hướng dữ liệu sang tầng service
-    const createdBoard = await boardService.createNew(userId, req.body)
+    const createdBoard = await boardService.createNew(userId, req.body, boardBackground)
 
     res.status(StatusCodes.CREATED).json(createdBoard)
   } catch (error) {

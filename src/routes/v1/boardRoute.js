@@ -1,10 +1,15 @@
 import express from 'express'
 import { boardValidation } from '~/validations/boardValidation'
 import { boardController } from '~/controllers/boardController'
+import { multerUploadMiddleware } from '~/middlewares/multerUploadMiddleware'
 const Router = express.Router()
+
 Router.route('/')
   .get(boardController.getBoards)
-  .post(boardValidation.createNew, boardController.createNew)
+  .post(
+    multerUploadMiddleware.upload.single('background'),
+    boardValidation.createNew,
+    boardController.createNew)
 Router.route('/:id')
   .get(boardController.getDetails)
   .put(boardValidation.update, boardController.update)

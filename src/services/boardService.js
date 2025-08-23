@@ -7,6 +7,7 @@ import { cloneDeep } from 'lodash'
 import { columnModel } from '~/models/columnModel'
 import { cardModel } from '~/models/cardModel'
 import { DEFAULT_PAGE, DEFAULT_ITEMS_PER_PAGE } from '~/utils/constants'
+import { CloudinaryProvider } from '~/providers/cloudinaryProvider'
 
 const getBoards = async (userId, page, itemsPerPage, queryFilters) => {
   try {
@@ -19,15 +20,15 @@ const getBoards = async (userId, page, itemsPerPage, queryFilters) => {
     throw error
   }
 }
-const createNew = async (userId, reqBody) => {
+const createNew = async (userId, reqBody, boardBackground) => {
   try {
     const newBoard = {
       ...reqBody,
       slug:slugify(reqBody.title)
     }
     // Gọi tới tầng Model để xử lý lưu bản ghi newBoard vào trong Database
-    //....
-    const createdBoard = await boardModel.createNew(userId, newBoard)
+    const uploadResult = await CloudinaryProvider.streamUpload(boardBackground.buffer, 'trello-boards')
+    const createdBoard = await boardModel.createNew(userId, { ...newBoard, background: uploadResult.secure_url })
     //Lấy bản ghi board sau khi thêm
     const getNewBoard = await boardModel.findOneById(createdBoard.insertedId.toString())
 

@@ -24,7 +24,8 @@ và Front-end.
       'string.trim': 'Tiêu đề không được có khoảng trắng ở đầu hoặc cuối'
     }),
     description: Joi.string().required().min(3).max(256).trim().strict(),
-    type: Joi.string().valid(BOARD_TYPES.PUBLIC, BOARD_TYPES.PRIVATE).required()
+    type: Joi.string().valid(BOARD_TYPES.PUBLIC, BOARD_TYPES.PRIVATE).required(),
+    background: Joi.optional()
   })
   try {
     // console.log(req.body)
