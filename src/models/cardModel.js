@@ -132,6 +132,25 @@ const updateMembers = async (cardId, incomingMemberInfo) => {
   }
 }
 
+const updateUserInfoInComments = async (userId, updateData) => {
+  try {
+    const updateField = `comments.$[elem].${updateData.fieldUpdate}`
+    await GET_DB().collection(CARD_COLLECTION_NAME).updateMany(
+      { 'comments.userId': userId },
+      {
+        $set: {
+          [updateField]: updateData.displayName
+        }
+      },
+      {
+        arrayFilters: [{ 'elem.userId': userId }]
+      }
+    )
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const cardModel = {
   CARD_COLLECTION_NAME,
   CARD_COLLECTION_SCHEMA,
@@ -140,5 +159,6 @@ export const cardModel = {
   update,
   deleteManyByColumnId,
   unShiftNewComment,
-  updateMembers
+  updateMembers,
+  updateUserInfoInComments
 }

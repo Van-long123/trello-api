@@ -9,6 +9,7 @@ import { sendMail } from '~/utils/sendMail'
 import { env } from '~/config/environment'
 import { jwtProvider } from '~/providers/JwtProvider'
 import { CloudinaryProvider } from '~/providers/cloudinaryProvider'
+import { cardModel } from '~/models/cardModel'
 
 const createNew = async (reqBody) => {
   try {
@@ -254,6 +255,9 @@ const update = async (userId, reqBody, userAvatarFile) => {
       updatedUser = await userModel.update(existUser._id, {
         avatar: uploadResult.secure_url, updatedAt: Date.now()
       })
+      if (updatedUser) {
+        await cardModel.updateUserInfoInComments(userId, { fieldUpdate: 'userAvatar', displayName: updatedUser.avatar })
+      }
     }
     else {
       // Trường hợp cập nhật các thông tin chung
@@ -262,6 +266,9 @@ const update = async (userId, reqBody, userAvatarFile) => {
         updatedAt: Date.now()
       }
       updatedUser = await userModel.update(existUser._id, updateData)
+      if (updateData.displayName) {
+        await cardModel.updateUserInfoInComments(userId, { fieldUpdate: 'userDisplayName', displayName: updatedUser.displayName })
+      }
     }
     return pickUser(updatedUser)
   } catch (error) {
