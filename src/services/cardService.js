@@ -43,6 +43,10 @@ const update = async (cardId, cardCoverFile, reqBody, userInfo) => {
       updatedCard = await cardModel.unShiftNewComment(cardId, commentData)
     } else if (updateData.incomingMemberInfo) {
       updatedCard = await cardModel.updateMembers(cardId, updateData.incomingMemberInfo)
+    } else if (updateData.commentToUpdate) {
+      updatedCard = await cardModel.updateComment(cardId, updateData.commentToUpdate)
+    } else if (updateData.commentToDelete) {
+      updatedCard = await cardModel.deleteComment(cardId, updateData.commentToDelete)
     }
     else {
       // Các trường hợp update chung như title, description

@@ -151,6 +151,45 @@ const updateUserInfoInComments = async (userId, updateData) => {
   }
 }
 
+const updateComment = async (cardId, commentToUpdate) => {
+  try {
+    const result =await GET_DB().collection(CARD_COLLECTION_NAME).findOneAndUpdate(
+      {
+        _id: new ObjectId(cardId),
+        'comments.commentedAt': commentToUpdate.commentedAt
+      },
+      {
+        $set: { 'comments.$.content': commentToUpdate.content }
+      },
+      {
+        returnDocument: 'after'
+      }
+    )
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const deleteComment = async (cardId, commentToDelete) => {
+  try {
+    const result =await GET_DB().collection(CARD_COLLECTION_NAME).findOneAndUpdate(
+      {
+        _id: new ObjectId(cardId)
+      },
+      {
+        $pull: { comments: { commentedAt: commentToDelete.commentedAt } }
+      },
+      {
+        returnDocument: 'after'
+      }
+    )
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const cardModel = {
   CARD_COLLECTION_NAME,
   CARD_COLLECTION_SCHEMA,
@@ -160,5 +199,7 @@ export const cardModel = {
   deleteManyByColumnId,
   unShiftNewComment,
   updateMembers,
-  updateUserInfoInComments
+  updateUserInfoInComments,
+  updateComment,
+  deleteComment
 }
