@@ -3,6 +3,8 @@ import { EMAIL_RULE, EMAIL_RULE_MESSAGE, OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE 
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
 import { CARD_MEMBER_ACTION } from '~/utils/constants'
+import ApiError from '~/utils/ApiError'
+import { StatusCodes } from 'http-status-codes'
 
 // Define Collection (name & schema)
 const CARD_COLLECTION_NAME = 'cards'
@@ -26,7 +28,8 @@ const CARD_COLLECTION_SCHEMA = Joi.object({
     userDisplayName: Joi.string(),
     content: Joi.string(),
     // Chỗ này lưu ý vì dùng hàm $push để thêm comment nên không set default Date.now luôn giống hàm insertone khi create được.
-    commentedAt: Joi.date().timestamp()
+    commentedAt: Joi.date().timestamp(),
+    reactions: Joi.array().default([])
   }).default([]),
 
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
@@ -190,6 +193,46 @@ const deleteComment = async (cardId, commentToDelete) => {
   }
 }
 
+const updateReactionInComment = async (cardId, userId, commentReactionsToUpdate) => {
+  try {
+    const { emoji, commentedAt } = commentReactionsToUpdate
+    const card = await GET_DB().collection(CARD_COLLECTION_NAME).findOne({
+      _id: new ObjectId(cardId)
+    })
+    if (!card) throw new ApiError(StatusCodes.NOT_FOUND, 'Card not found')
+
+    const comment = card.comments.find(c => c.commentedAt === commentedAt )
+    if (!comment) throw new ApiError(StatusCodes.NOT_FOUND, 'Comment not found')
+    let reaction = comment.reactions.find(r => r.emoji === emoji)
+    if (!reaction) {
+      comment.reactions.push({ emoji, count: 1, users: [userId] })
+    }
+    else {
+      // eslint-disable-next-line no-lonely-if
+      if (reaction.users.includes(userId)) {
+        reaction.count -= 1
+        reaction.users = reaction.users.filter(u => u !== userId)
+        if (reaction.count === 0) {
+          comment.reactions = comment.reactions.filter(r => r.emoji !== emoji)
+        }
+      }
+      else {
+        reaction.count += 1
+        reaction.users.push(userId)
+      }
+    }
+
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(cardId), 'comments.commentedAt': commentedAt },
+      { $set: { 'comments.$': comment } },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const cardModel = {
   CARD_COLLECTION_NAME,
   CARD_COLLECTION_SCHEMA,
@@ -201,5 +244,6 @@ export const cardModel = {
   updateMembers,
   updateUserInfoInComments,
   updateComment,
-  deleteComment
+  deleteComment,
+  updateReactionInComment
 }

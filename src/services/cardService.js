@@ -38,7 +38,8 @@ const update = async (cardId, cardCoverFile, reqBody, userInfo) => {
         ...updateData.commentToAdd,
         commentedAt: Date.now(),
         userEmail:userInfo.email,
-        userId:userInfo._id
+        userId:userInfo._id,
+        reactions: []
       }
       updatedCard = await cardModel.unShiftNewComment(cardId, commentData)
     } else if (updateData.incomingMemberInfo) {
@@ -47,6 +48,8 @@ const update = async (cardId, cardCoverFile, reqBody, userInfo) => {
       updatedCard = await cardModel.updateComment(cardId, updateData.commentToUpdate)
     } else if (updateData.commentToDelete) {
       updatedCard = await cardModel.deleteComment(cardId, updateData.commentToDelete)
+    } else if (updateData.commentReactionsToUpdate) {
+      updatedCard = await cardModel.updateReactionInComment(cardId, userInfo._id, updateData.commentReactionsToUpdate)
     }
     else {
       // Các trường hợp update chung như title, description
