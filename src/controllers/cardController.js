@@ -21,7 +21,18 @@ const update = async (req, res, next) => {
   }
 }
 
+const createAttachInCard = async (req, res, next) => {
+  try {
+    const cardId = req.params.id
+    const file = req.file
+    const updatedCard = await cardService.createAttachInCard(cardId, file, req.body)
+    res.status(StatusCodes.CREATED).json(updatedCard)
+  } catch (error) {
+    next(error)
+  }
+}
 export const cardController = {
   createNew,
-  update
+  update,
+  createAttachInCard
 }

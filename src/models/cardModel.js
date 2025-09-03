@@ -32,6 +32,12 @@ const CARD_COLLECTION_SCHEMA = Joi.object({
     reactions: Joi.array().default([])
   }).default([]),
 
+  attachments: Joi.array().items({
+    fileName: Joi.string(),
+    fileType: Joi.string(),
+    fileUrl: Joi.string(),
+    createdAt: Joi.date().timestamp()
+  }).default([]),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),
   _destroy: Joi.boolean().default(false)
@@ -106,6 +112,19 @@ const unShiftNewComment = async (cardId, commentData) => {
     const result = await GET_DB().collection(CARD_COLLECTION_NAME).findOneAndUpdate(
       { _id:new ObjectId(cardId) },
       { $push: { comments: { $each:[commentData], $position:0 } } },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const unShiftNewAttachment = async (cardId, attachmentData) => {
+  try {
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id:new ObjectId(cardId) },
+      { $push: { attachments: { $each:[attachmentData], $position:0 } } },
       { returnDocument: 'after' }
     )
     return result
@@ -245,5 +264,6 @@ export const cardModel = {
   updateUserInfoInComments,
   updateComment,
   deleteComment,
-  updateReactionInComment
+  updateReactionInComment,
+  unShiftNewAttachment
 }

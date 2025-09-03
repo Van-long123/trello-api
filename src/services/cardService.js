@@ -61,7 +61,24 @@ const update = async (cardId, cardCoverFile, reqBody, userInfo) => {
   }
 }
 
+const createAttachInCard = async (cardId, file, reqBody) => {
+  try {
+    const uploadResult = await CloudinaryProvider.streamUpload(file.buffer, 'card-attachments')
+    const attachmentData = {
+      fileName: reqBody.fileName,
+      fileType: reqBody.fileType,
+      fileUrl: uploadResult.secure_url,
+      createdAt: Date.now()
+    }
+    const updatedCard = await cardModel.unShiftNewAttachment(cardId, attachmentData)
+    return updatedCard
+  } catch (error) {
+    throw error
+  }
+}
+
 export const cardService = {
   createNew,
-  update
+  update,
+  createAttachInCard
 }
