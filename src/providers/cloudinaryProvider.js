@@ -16,7 +16,7 @@ const streamUpload = (buffer, folderName) => {
     // Tạo 1 cái luồng stream upload lên cloudinary
     let stream = cloudinaryV2.uploader.upload_stream(
       // Khi mà khai báo folder này thì nó sẽ cho ảnh đúng folder ta cần
-      { folder: folderName },
+      { folder: folderName, resource_type: 'auto' },
       (error, result) => {
         if (result) {
           resolve(result)

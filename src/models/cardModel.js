@@ -212,6 +212,44 @@ const deleteComment = async (cardId, commentToDelete) => {
   }
 }
 
+const attachmentToUpdate = async (cardId, attachmentToUpdate) => {
+  try {
+    const result =await GET_DB().collection(CARD_COLLECTION_NAME).findOneAndUpdate(
+      {
+        _id: new ObjectId(cardId),
+        'attachments.createdAt': attachmentToUpdate.createdAt
+      },
+      {
+        $set: { 'attachments.$.fileName': attachmentToUpdate.fileName }
+      },
+      {
+        returnDocument: 'after'
+      }
+    )
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+const deleteAttachment = async (cardId, attachmentToDelete) => {
+  try {
+    const result =await GET_DB().collection(CARD_COLLECTION_NAME).findOneAndUpdate(
+      {
+        _id: new ObjectId(cardId)
+      },
+      {
+        $pull: { attachments: { createdAt: attachmentToDelete.createdAt } }
+      },
+      {
+        returnDocument: 'after'
+      }
+    )
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 const updateReactionInComment = async (cardId, userId, commentReactionsToUpdate) => {
   try {
     const { emoji, commentedAt } = commentReactionsToUpdate
@@ -265,5 +303,7 @@ export const cardModel = {
   updateComment,
   deleteComment,
   updateReactionInComment,
-  unShiftNewAttachment
+  unShiftNewAttachment,
+  deleteAttachment,
+  attachmentToUpdate
 }
