@@ -67,7 +67,7 @@ const update = async (cardId, cardCoverFile, reqBody, userInfo) => {
 
 const createAttachInCard = async (cardId, file, reqBody) => {
   try {
-    const uploadResult = await CloudinaryProvider.streamUpload(file.buffer, 'card-attachments')
+    const uploadResult = await CloudinaryProvider.streamUpload(file.buffer, 'card-attachments', file.mimetype)
     const attachmentData = {
       fileName: reqBody.fileName,
       fileType: reqBody.fileType,

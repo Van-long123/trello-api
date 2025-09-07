@@ -11,12 +11,17 @@ cloudinaryV2.config({
 })
 
 // Khởi tạo function để thực hiện upload file lên cloudinary
-const streamUpload = (buffer, folderName) => {
+const streamUpload = (buffer, folderName, mimetype) => {
   return new Promise((resolve, reject) => {
+    let resourceType = 'raw' // mặc định
+    if (mimetype.startsWith('image/')) resourceType = 'image'
+    else if (mimetype.startsWith('video/') || mimetype.startsWith('audio/')) resourceType = 'video'
     // Tạo 1 cái luồng stream upload lên cloudinary
     let stream = cloudinaryV2.uploader.upload_stream(
       // Khi mà khai báo folder này thì nó sẽ cho ảnh đúng folder ta cần
-      { folder: folderName, resource_type: 'auto' },
+      { folder: folderName,
+        resource_type: resourceType
+      },
       (error, result) => {
         if (result) {
           resolve(result)
@@ -27,7 +32,7 @@ const streamUpload = (buffer, folderName) => {
     )
     // Thực hiện upload luồng trên bằng lib streamifier
     streamifier.createReadStream(buffer).pipe(stream)
-})
+  })
 }
 
 export const CloudinaryProvider = { streamUpload }
