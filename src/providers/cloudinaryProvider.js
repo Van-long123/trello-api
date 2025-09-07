@@ -11,7 +11,7 @@ cloudinaryV2.config({
 })
 
 // Khởi tạo function để thực hiện upload file lên cloudinary
-const streamUpload = (buffer, folderName, mimetype) => {
+const streamUpload = (buffer, folderName, mimetype = 'image') => {
   return new Promise((resolve, reject) => {
     let resourceType = 'raw' // mặc định
     if (mimetype.startsWith('image/')) resourceType = 'image'
