@@ -38,6 +38,9 @@ const CARD_COLLECTION_SCHEMA = Joi.object({
     fileUrl: Joi.string(),
     createdAt: Joi.date().timestamp()
   }).default([]),
+  labelIds: Joi.array().items(
+    Joi.string()
+  ).default([]),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),
   _destroy: Joi.boolean().default(false),
