@@ -84,6 +84,47 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
     { 'id': 'lbl40', 'color': '#212529', 'name': 'Black' }
   ]
   ),
+  customLabels: Joi.array().items({
+    id: Joi.string(),
+    color: Joi.string(),
+    name: Joi.string()
+  }).default([
+    {
+      'id': 'lbl19',
+      'color': '#ffc6f7',
+      'name': 'Pink'
+    },
+    {
+      'id': 'lbl20',
+      'color': '#d9d9d9',
+      'name': 'Gray'
+    },
+    {
+      'id': 'lbl21',
+      'color': '#7ebaff',
+      'name': 'Blue'
+    },
+    {
+      'id': 'lbl22',
+      'color': '#56ccf2',
+      'name': 'Cyan'
+    },
+    {
+      'id': 'lbl23',
+      'color': '#84d95a',
+      'name': 'Green'
+    },
+    {
+      'id': 'lbl8',
+      'color': '#ffa62b',
+      'name': 'Orange'
+    },
+    {
+      'id': 'lbl9',
+      'color': '#ff6b6b',
+      'name': 'Red'
+    },
+  ]),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),
   _destroy: Joi.boolean().default(false)
