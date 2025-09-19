@@ -4,15 +4,16 @@ import { env } from '~/config/environment'
 
 export const sendMail = (recipientEmail, customSubject, htmlContent) => {
   var transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.sendgrid.net',
+    port: 587,
     auth: {
-      user: env.EMAIL_USER,
-      pass: env.EMAIL_PASSWORD
+      user: 'apikey',
+      pass: env.SENDGRID_API_KEY
     }
   })
 
   var mailOptions = {
-    from: env.EMAIL_USER,
+    from: 'phamlong123np@gmail.com',
     to:recipientEmail,
     subject: customSubject,
     html: htmlContent

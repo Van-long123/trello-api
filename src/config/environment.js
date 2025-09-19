@@ -10,7 +10,7 @@ export const env = {
   // Nodemailer
   EMAIL_USER: process.env.EMAIL_USER,
   EMAIL_PASSWORD: process.env.EMAIL_PASSWORD,
-
+  SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
   // Brevo
   BREVO_API_KEY: process.env.BREVO_API_KEY,
   ADMIN_EMAIL_ADDRESS: process.env.ADMIN_EMAIL_ADDRESS,
