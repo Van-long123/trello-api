@@ -8,7 +8,7 @@ sgMail.setApiKey(env.SENDGRID_API_KEY)
 export const sendMail = async (recipientEmail, customSubject, htmlContent) => {
   const msg = {
     to: recipientEmail,
-    from: 'phamlong123np@gmail.com', // phải là email đã verify trong SendGrid
+    from: env.EMAIL_USER, // phải là email đã verify trong SendGrid
     subject: customSubject,
     html: htmlContent
   }
