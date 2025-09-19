@@ -1,29 +1,25 @@
 /* eslint-disable no-console */
-import nodemailer from 'nodemailer'
+import sgMail from '@sendgrid/mail'
 import { env } from '~/config/environment'
 
-export const sendMail = (recipientEmail, customSubject, htmlContent) => {
-  var transporter = nodemailer.createTransport({
-    host: 'smtp.sendgrid.net',
-    port: 587,
-    auth: {
-      user: 'apikey',
-      pass: env.SENDGRID_API_KEY
-    }
-  })
+// Set API key
+sgMail.setApiKey(env.SENDGRID_API_KEY)
 
-  var mailOptions = {
-    from: 'phamlong123np@gmail.com',
-    to:recipientEmail,
+export const sendMail = async (recipientEmail, customSubject, htmlContent) => {
+  const msg = {
+    to: recipientEmail,
+    from: 'phamlong123np@gmail.com', // phải là email đã verify trong SendGrid
     subject: customSubject,
     html: htmlContent
   }
 
-  transporter.sendMail(mailOptions, function(error, info) {
-    if (error) {
-      console.log(error)
-    } else {
-      console.log('Email sent: ' + info.response)
+  try {
+    await sgMail.send(msg)
+    console.log('✅ Email sent to: ' + recipientEmail)
+  } catch (error) {
+    console.error('❌ Error sending email:', error)
+    if (error.response) {
+      console.error(error.response.body) // in ra chi tiết lỗi từ SendGrid
     }
-  })
+  }
 }
