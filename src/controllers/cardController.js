@@ -31,8 +31,35 @@ const createAttachInCard = async (req, res, next) => {
     next(error)
   }
 }
+
+const watchCard = async (req, res, next) => {
+  try {
+    const cardId = req.params.id
+    const userId = req.jwtDecoded._id
+    const updatedColumn = await cardService.watchCard(cardId, userId)
+
+    res.status(StatusCodes.OK).json(updatedColumn)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const unwatchCard = async (req, res, next) => {
+  try {
+    const cardId = req.params.id
+    const userId = req.jwtDecoded._id
+    const result = await cardService.unwatchCard(cardId, userId)
+
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const cardController = {
   createNew,
   update,
-  createAttachInCard
+  createAttachInCard,
+  watchCard,
+  unwatchCard
 }
