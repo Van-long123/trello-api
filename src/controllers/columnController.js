@@ -31,8 +31,34 @@ const deleteItem = async (req, res, next) => {
   }
 }
 
+const watchColumn = async (req, res, next) => {
+  try {
+    const columnId = req.params.id
+    const userId = req.jwtDecoded._id
+    const updatedColumn = await columnService.watchColumn(columnId, userId)
+
+    res.status(StatusCodes.OK).json(updatedColumn)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const unwatchCard = async (req, res, next) => {
+  try {
+    const columnId = req.params.id
+    const userId = req.jwtDecoded._id
+    const result = await columnService.unwatchCard(columnId, userId)
+
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const columnController = {
   createNew,
   update,
-  deleteItem
+  deleteItem,
+  watchColumn,
+  unwatchCard
 }
