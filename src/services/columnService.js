@@ -69,9 +69,9 @@ const watchColumn = async (columnId, userId) => {
   }
 }
 
-const unwatchCard = async (columnId, userId) => {
+const unwatchColumn = async (columnId, userId) => {
   try {
-    const result = await columnModel.unwatchCard(columnId, userId)
+    const result = await columnModel.unwatchColumn(columnId, userId)
     return result
   } catch (error) {
     throw error
@@ -83,5 +83,5 @@ export const columnService = {
   update,
   deleteItem,
   watchColumn,
-  unwatchCard
+  unwatchColumn
 }

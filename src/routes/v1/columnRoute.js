@@ -11,5 +11,5 @@ Router.route('/:id')
 
 Router.route('/:id/watch')
   .post(columnController.watchColumn)
-  .delete(columnController.unwatchCard)
+  .delete(columnController.unwatchColumn)
 export const columnRoute = Router

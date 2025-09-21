@@ -111,7 +111,7 @@ const watchColumn = async (columnId, userId) => {
   }
 }
 
-const unwatchCard = async (columnId, userId) => {
+const unwatchColumn = async (columnId, userId) => {
   try {
     const result =await GET_DB().collection(COLUMN_COLLECTION_NAME).findOneAndUpdate(
       { _id: new ObjectId(columnId) },
@@ -133,5 +133,5 @@ export const columnModel = {
   update,
   deleteOneById,
   watchColumn,
-  unwatchCard
+  unwatchColumn
 }

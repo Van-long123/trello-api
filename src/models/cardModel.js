@@ -41,6 +41,9 @@ const CARD_COLLECTION_SCHEMA = Joi.object({
   labelIds: Joi.array().items(
     Joi.string()
   ).default([]),
+  watchers: Joi.array().items(
+    Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
+  ).default([]),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),
   _destroy: Joi.boolean().default(false),
@@ -294,6 +297,32 @@ const updateReactionInComment = async (cardId, userId, commentReactionsToUpdate)
   }
 }
 
+const watchCard = async (cardId, userId) => {
+  try {
+    const result =await GET_DB().collection(CARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(cardId) },
+      { $push: { watchers: new ObjectId(userId) } },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const unwatchCard = async (cardId, userId) => {
+  try {
+    const result =await GET_DB().collection(CARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(cardId) },
+      { $pull: { watchers: new ObjectId(userId) } },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const cardModel = {
   CARD_COLLECTION_NAME,
   CARD_COLLECTION_SCHEMA,
@@ -309,5 +338,7 @@ export const cardModel = {
   updateReactionInComment,
   unShiftNewAttachment,
   deleteAttachment,
-  attachmentToUpdate
+  attachmentToUpdate,
+  watchCard,
+  unwatchCard
 }

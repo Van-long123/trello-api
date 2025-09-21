@@ -15,4 +15,7 @@ Router.route('/:id')
 Router.route('/attach/:id')
   .put(upload.single('file'), cardController.createAttachInCard)
 
+Router.route('/:id/watch')
+  .post(cardController.watchCard)
+  .delete(cardController.unwatchCard)
 export const cardRoute = Router

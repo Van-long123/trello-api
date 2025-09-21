@@ -81,8 +81,28 @@ const createAttachInCard = async (cardId, file, reqBody) => {
   }
 }
 
+const watchCard = async (cardId, userId) => {
+  try {
+    const updatedColumn = await cardModel.watchCard(cardId, userId)
+    return updatedColumn
+  } catch (error) {
+    throw error
+  }
+}
+
+const unwatchCard = async (cardId, userId) => {
+  try {
+    const result = await cardModel.unwatchCard(cardId, userId)
+    return result
+  } catch (error) {
+    throw error
+  }
+}
+
 export const cardService = {
   createNew,
   update,
-  createAttachInCard
+  createAttachInCard,
+  watchCard,
+  unwatchCard
 }
