@@ -60,8 +60,28 @@ const deleteItem = async (columnId) => {
   }
 }
 
+const watchColumn = async (columnId, userId) => {
+  try {
+    const updatedColumn = await columnModel.watchColumn(columnId, userId)
+    return updatedColumn
+  } catch (error) {
+    throw error
+  }
+}
+
+const unwatchCard = async (columnId, userId) => {
+  try {
+    const result = await columnModel.unwatchCard(columnId, userId)
+    return result
+  } catch (error) {
+    throw error
+  }
+}
+
 export const columnService = {
   createNew,
   update,
-  deleteItem
+  deleteItem,
+  watchColumn,
+  unwatchCard
 }
