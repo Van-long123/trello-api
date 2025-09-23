@@ -69,6 +69,37 @@ const createNew = async (data) => {
     throw new Error(error)
   }
 }
+
+const createNewMany = async (cards, columnId) => {
+  try {
+    const transformedCards = cards.map(card => ({
+      ...card,
+      columnId: new ObjectId(columnId),
+      boardId: new ObjectId(card.boardId),
+      memberIds: card.memberIds ? card.memberIds.map(id => new ObjectId(id)) : [],
+      comments: card.comments ? card.comments.map(comment => ({
+        ...comment,
+        userId: new ObjectId(comment.userId)
+      })) : []
+    }))
+    const createdCards = await GET_DB().collection(CARD_COLLECTION_NAME).insertMany(transformedCards)
+    return createdCards
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const getCardsByIds = async (ids) => {
+  try {
+    const createdCards = await GET_DB().collection(CARD_COLLECTION_NAME).find({
+      _id: { $in: ids }
+    }).toArray()
+    return createdCards
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 const findOneById = async (id) => {
   try {
     const result = await GET_DB().collection(CARD_COLLECTION_NAME).findOne({
@@ -340,5 +371,7 @@ export const cardModel = {
   deleteAttachment,
   attachmentToUpdate,
   watchCard,
-  unwatchCard
+  unwatchCard,
+  createNewMany,
+  getCardsByIds
 }

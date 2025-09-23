@@ -9,6 +9,15 @@ const createNew = async (req, res, next) => {
   }
 }
 
+const createNewCopy = async (req, res, next) => {
+  try {
+    const createdColumn = await columnService.createNewCopy(req.body)
+    res.status(StatusCodes.CREATED).json(createdColumn)
+  } catch (error) {
+    next(error)
+  }
+}
+
 const update = async (req, res, next) => {
   try {
     const columnId = req.params.id
@@ -60,5 +69,6 @@ export const columnController = {
   update,
   deleteItem,
   watchColumn,
-  unwatchColumn
+  unwatchColumn,
+  createNewCopy
 }
