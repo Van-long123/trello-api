@@ -25,6 +25,44 @@ const createNew = async (reqBody) => {
   }
 }
 
+const createNewCopy = async (reqBody) => {
+  try {
+    const newColumn = {
+      ...reqBody
+    }
+    const createdColumn = await columnModel.createNew({
+      title: newColumn.title,
+      boardId: newColumn.boardId,
+      cardOrderIds: []
+    })
+    let resultCards = []
+    let insertedId = []
+    if (newColumn.cards.length > 0) {
+      resultCards = await cardModel.createNewMany(newColumn.cards, createdColumn.insertedId)
+      insertedId = Object.values(resultCards.insertedIds)
+    }
+
+    const getNewColumn = await columnModel.update(createdColumn.insertedId, { cardOrderIds: insertedId })
+    let createdCards = []
+    if (insertedId.length > 0) {
+      createdCards = await cardModel.getCardsByIds(insertedId)
+    }
+
+    // const getNewColumn = await columnModel.findOneById(createdColumn.insertedId)
+
+    if (getNewColumn) {
+      //Xử lý cấu trúc data ở đây trước khi trả về
+      getNewColumn.cards = []
+
+      //Cập nhật lại columnOrderIds trong collection boards
+      await boardModel.pushColumnOrderIds(getNewColumn)
+    }
+
+    return { getNewColumn, createdCards }
+  } catch (error) {
+    throw error
+  }
+}
 
 const update = async (columnId, reqBody) => {
   try {
@@ -83,5 +121,6 @@ export const columnService = {
   update,
   deleteItem,
   watchColumn,
-  unwatchColumn
+  unwatchColumn,
+  createNewCopy
 }

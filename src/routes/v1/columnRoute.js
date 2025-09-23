@@ -5,6 +5,9 @@ const Router = express.Router()
 Router.route('/')
   .post(columnValidation.createNew, columnController.createNew)
 
+Router.route('/copy')
+  .post(columnValidation.createNewCopy, columnController.createNewCopy)
+
 Router.route('/:id')
   .put(columnValidation.update, columnController.update)
   .delete(columnValidation.deleteItem, columnController.deleteItem)

@@ -16,6 +16,19 @@ const createNew = async (req, res, next) => {
   }
 }
 
+const createNewCopy = async (req, res, next) => {
+  const correctCondition = Joi.object({
+    boardId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+    title: Joi.string().required().min(3).max(50).trim().strict(),
+  })
+  try {
+    await correctCondition.validateAsync(req.body, { abortEarly: false, allowUnknown: true })
+    next()
+  } catch (error) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))
+  }
+}
+
 const update = async (req, res, next) => {
   //Lưu ý ko required() trong trường hợp update
   const correctCondition = Joi.object({
@@ -53,5 +66,6 @@ const deleteItem = async (req, res, next) => {
 export const columnValidation = {
   createNew,
   update,
-  deleteItem
+  deleteItem,
+  createNewCopy
 }
