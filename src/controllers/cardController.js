@@ -56,10 +56,20 @@ const unwatchCard = async (req, res, next) => {
   }
 }
 
+const createNewCopy = async (req, res, next) => {
+  try {
+    const createdColumn = await cardService.createNewCopy(req.body)
+    res.status(StatusCodes.CREATED).json(createdColumn)
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const cardController = {
   createNew,
   update,
   createAttachInCard,
   watchCard,
-  unwatchCard
+  unwatchCard,
+  createNewCopy
 }

@@ -9,6 +9,9 @@ const Router = express.Router()
 Router.route('/')
   .post(cardValidation.createNew, cardController.createNew)
 
+Router.route('/copy')
+  .post(cardValidation.createNewCopy, cardController.createNewCopy)
+
 Router.route('/:id')
   .put(multerUploadMiddleware.upload.single('cardCover'), cardValidation.update, cardController.update)
 

@@ -99,10 +99,29 @@ const unwatchCard = async (cardId, userId) => {
   }
 }
 
+const createNewCopy = async (reqBody) => {
+  try {
+    const newCard = {
+      ...reqBody.card
+    }
+    const createdCard = await cardModel.createNewCopy(newCard, reqBody.columnId, reqBody.title)
+    const getNewCard = await cardModel.findOneById(createdCard.insertedId)
+
+    if (getNewCard) {
+      await columnModel.insertCardOrderIdAt(reqBody.columnId, getNewCard._id, reqBody.position)
+    }
+
+    return getNewCard
+  } catch (error) {
+    throw error
+  }
+}
+
 export const cardService = {
   createNew,
   update,
   createAttachInCard,
   watchCard,
-  unwatchCard
+  unwatchCard,
+  createNewCopy
 }
