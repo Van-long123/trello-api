@@ -41,7 +41,8 @@ const CARD_COLLECTION_SCHEMA = Joi.object({
       fileUrl: Joi.string(),
       createdAt: Joi.date().timestamp('javascript').raw() // timestamp: số milliseconds  dùng Date.now() để lấy milliseconds thời gian hiện tại
       // sau khi validateAsync với Joi.date().timestamp('javascript') thì Joi sẽ parse và trả ra Date object dạng 2025-09-21T08:34:09.640Z
-      // lưu vào DB và ta lấy giá trị createdAt ra validate thì sẽ lỗi vì ở trên ta check dạng timestamp('javascript')
+      // lưu vào DB và ta lấy giá trị createdAt ra validate thì sẽ lỗi vì ở trên ta check dạng timestamp('javascript')  số milliseconds 
+      // 2025-09-21T08:34:09.640Z thì dùng Joi.date()
     })
   ).default([]),
   labelIds: Joi.array().items(
