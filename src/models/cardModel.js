@@ -15,37 +15,45 @@ const CARD_COLLECTION_SCHEMA = Joi.object({
   title: Joi.string().required().min(3).max(50).trim().strict(),
   //optional là description không bắt buộc phải có field trong reqBody.
   description: Joi.string().optional(),
-  cover: Joi.string().default(null),
+  cover: Joi.string().allow(null).default(null),
 
   memberIds: Joi.array().items(
     Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
   ).default([]),
   // Dữ liệu comment sẽ nằm ở CardModel luôn không cần tạo 1 collection khác
-  comments: Joi.array().items({
-    userId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-    userEmail: Joi.string().pattern(EMAIL_RULE).message(EMAIL_RULE_MESSAGE),
-    userAvatar: Joi.string(),
-    userDisplayName: Joi.string(),
-    content: Joi.string(),
-    // Chỗ này lưu ý vì dùng hàm $push để thêm comment nên không set default Date.now luôn giống hàm insertone khi create được.
-    commentedAt: Joi.date().timestamp(),
-    reactions: Joi.array().default([])
-  }).default([]),
+  comments: Joi.array().items(
+    Joi.object({
+      userId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+      userEmail: Joi.string().pattern(EMAIL_RULE).message(EMAIL_RULE_MESSAGE),
+      userAvatar: Joi.string(),
+      userDisplayName: Joi.string(),
+      content: Joi.string(),
+      // Chỗ này lưu ý vì dùng hàm $push để thêm comment nên không set default Date.now luôn giống hàm insertone khi create được.
+      commentedAt: Joi.date().timestamp('javascript').raw(),
+      reactions: Joi.array().default([])
+    })
+  ).default([]),
 
-  attachments: Joi.array().items({
-    fileName: Joi.string(),
-    fileType: Joi.string(),
-    fileUrl: Joi.string(),
-    createdAt: Joi.date().timestamp()
-  }).default([]),
+  attachments: Joi.array().items(
+    Joi.object({
+      fileName: Joi.string(),
+      fileType: Joi.string(),
+      fileUrl: Joi.string(),
+      createdAt: Joi.date().timestamp('javascript').raw() // timestamp: số milliseconds  dùng Date.now() để lấy milliseconds thời gian hiện tại
+      // sau khi validateAsync với Joi.date().timestamp('javascript') thì Joi sẽ parse và trả ra Date object dạng 2025-09-21T08:34:09.640Z
+      // lưu vào DB và ta lấy giá trị createdAt ra validate thì sẽ lỗi vì ở trên ta check dạng timestamp('javascript')
+    })
+  ).default([]),
   labelIds: Joi.array().items(
     Joi.string()
   ).default([]),
   watchers: Joi.array().items(
     Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
   ).default([]),
-  createdAt: Joi.date().timestamp('javascript').default(Date.now),
-  updatedAt: Joi.date().timestamp('javascript').default(null),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now).raw(),
+  updatedAt: Joi.date().timestamp('javascript').allow(null).default(null).raw(),
+  dueDate: Joi.date().default(null),
+  startDate: Joi.date().default(null),
   _destroy: Joi.boolean().default(false),
   isCompleted: Joi.boolean().default(false)
 })
@@ -63,6 +71,36 @@ const createNew = async (data) => {
       boardId: new ObjectId(validData.boardId),
       columnId: new ObjectId(validData.columnId)
     }
+    const createdCard = await GET_DB().collection(CARD_COLLECTION_NAME).insertOne(newCardToAdd)
+    return createdCard
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const createNewCopy = async (card, columnId, title) => {
+  console.log('🚀 ~ createNew ~ data:', card)
+  if (card.sortable) {
+    delete card.sortable
+  }
+  try {
+    const validData = await validateBeforeCreate({
+      ...card,
+      columnId
+    })
+    console.log('🚀 ~ createNewCopy ~ validData:', validData)
+    const newCardToAdd = {
+      ...validData,
+      title: title,
+      columnId: new ObjectId(columnId),
+      boardId: new ObjectId(card.boardId),
+      memberIds: card.memberIds ? card.memberIds.map(id => new ObjectId(id)) : [],
+      comments: card.comments ? card.comments.map(comment => ({
+        ...comment,
+        userId: new ObjectId(comment.userId)
+      })) : []
+    }
+    console.log('🚀 ~ createNewCopy ~ newCardToAdd:', newCardToAdd)
     const createdCard = await GET_DB().collection(CARD_COLLECTION_NAME).insertOne(newCardToAdd)
     return createdCard
   } catch (error) {
@@ -373,5 +411,6 @@ export const cardModel = {
   watchCard,
   unwatchCard,
   createNewMany,
-  getCardsByIds
+  getCardsByIds,
+  createNewCopy
 }
