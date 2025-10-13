@@ -209,6 +209,38 @@ const getDetails = async (userId, boardId) => {
   }
 }
 
+const getFullBoards = async (userId) => {
+  try {
+    // User truy cập vào board cụ thể thì nó phải là thành viên của board đó
+    const queryConditions = [
+      { _destroy: false },
+      { $or: [
+        { ownerIds: { $all: [new ObjectId(userId)] } },
+        { memberIds: { $all: [new ObjectId(userId)] } }
+      ] }
+    ]
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate([
+      // $match kiểu chính xác lọc dữ liệu
+      { $match: { $and: queryConditions } },
+      { $lookup: {
+        from: columnModel.COLUMN_COLLECTION_NAME, // Tên collection cần JOIN
+        localField: '_id', //Trường ở collection hiện tại
+        foreignField: 'boardId', // Trường ở collection kia (column)
+        as: 'columns' // Tên field mới để chứa kết quả JOIN
+      } },
+      { $lookup: {
+        from: cardModel.CARD_COLLECTION_NAME,
+        localField: '_id',
+        foreignField: 'boardId',
+        as: 'cards'
+      } }
+    ]).toArray()
+    return result || null
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 //Push giá trị columnId vào cuối mảng columnOrderIds
 const pushColumnOrderIds = async (column) => {
   try {
@@ -357,5 +389,6 @@ export const boardModel = {
   update,
   pullColumnOrderIds,
   getBoards,
-  pushMemberIds
+  pushMemberIds,
+  getFullBoards
 }

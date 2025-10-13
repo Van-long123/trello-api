@@ -10,6 +10,10 @@ Router.route('/')
     multerUploadMiddleware.upload.single('background'),
     boardValidation.createNew,
     boardController.createNew)
+
+Router.route('/full')
+  .get(boardController.getFullBoards)
+
 Router.route('/:id')
   .get(boardController.getDetails)
   .put(boardValidation.update, boardController.update)

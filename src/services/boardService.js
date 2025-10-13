@@ -3,7 +3,7 @@ import { slugify } from '~/utils/formatters'
 import { boardModel } from '~/models/boardModel'
 import ApiError from '~/utils/ApiError'
 import { StatusCodes } from 'http-status-codes'
-import { cloneDeep } from 'lodash'
+import { cloneDeep, isEmpty } from 'lodash'
 import { columnModel } from '~/models/columnModel'
 import { cardModel } from '~/models/cardModel'
 import { DEFAULT_PAGE, DEFAULT_ITEMS_PER_PAGE } from '~/utils/constants'
@@ -61,6 +61,25 @@ const getDetails = async (userId, boardId) => {
   }
 }
 
+const getFullBoards = async (userId) => {
+  try {
+    const boards = await boardModel.getFullBoards(userId)
+    if (isEmpty(boards)) throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found!')
+
+    // const resBoard = cloneDeep(board)
+    // // Đưa card về đúng column của nó
+    // resBoard.columns.forEach(column => {
+    //   column.cards = resBoard.cards.filter(card => card.columnId.equals(column._id))
+    //   // column.cards = resBoard.cards.filter(card => card.columnId.toString() === column._id.toString())
+    // })
+    // delete resBoard.cards
+
+    return boards
+  } catch (error) {
+    throw error
+  }
+}
+
 const update = async (boardId, reqBody) => {
   try {
     const updateData = {
@@ -102,5 +121,6 @@ export const boardService = {
   getDetails,
   update,
   moveCartToDifferentColumn,
-  getBoards
+  getBoards,
+  getFullBoards
 }

@@ -116,11 +116,22 @@ const unwatchColumn = async (columnId, userId) => {
   }
 }
 
+const moveColumn = async (columnId, boardId, cardOrderIds) => {
+  try {
+    const updatedColumn = await columnModel.update(columnId, { boardId })
+    const updatedCard = await cardModel.updateManyCard(boardId, cardOrderIds)
+    return updatedColumn
+  } catch (error) {
+    throw error
+  }
+}
+
 export const columnService = {
   createNew,
   update,
   deleteItem,
   watchColumn,
   unwatchColumn,
-  createNewCopy
+  createNewCopy,
+  moveColumn
 }

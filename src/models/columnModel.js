@@ -21,7 +21,7 @@ const COLUMN_COLLECTION_SCHEMA = Joi.object({
 })
 
 // Chỉ định ra những Fields mà chúng ta không muốn cho phép cập nhật trong hàm update
-const INVALID_UPDATE_FIELDS = ['_id', 'boardId', 'createdAt']
+const INVALID_UPDATE_FIELDS = ['_id', 'createdAt']
 
 const validateBeforeCreate = async (data) => {
   return await COLUMN_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
@@ -74,6 +74,9 @@ const update = async (columnId, updateData) => {
     //Đối với dữ liệu liên quan tới ObjectId biến đổi ở đây
     if (updateData.cardOrderIds) {
       updateData.cardOrderIds = updateData.cardOrderIds.map(_id => new ObjectId(_id))
+    }
+    if (updateData.boardId) {
+      updateData.boardId = new ObjectId(updateData.boardId)
     }
 
     const result = await GET_DB().collection(COLUMN_COLLECTION_NAME).findOneAndUpdate(
