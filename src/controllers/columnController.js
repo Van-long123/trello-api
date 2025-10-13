@@ -64,11 +64,25 @@ const unwatchColumn = async (req, res, next) => {
   }
 }
 
+const moveColumn = async (req, res, next) => {
+  try {
+    const columnId = req.params.id
+    const boardId = req.body.boardId
+    const cardOrderIds = req.body.cardOrderIds
+    const moveColumn = await columnService.moveColumn(columnId, boardId, cardOrderIds)
+
+    res.status(StatusCodes.OK).json(moveColumn)
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const columnController = {
   createNew,
   update,
   deleteItem,
   watchColumn,
   unwatchColumn,
-  createNewCopy
+  createNewCopy,
+  moveColumn
 }

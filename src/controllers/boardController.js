@@ -41,6 +41,17 @@ const getDetails = async (req, res, next) => {
   }
 }
 
+const getFullBoards = async (req, res, next) => {
+  try {
+    const userId = req.jwtDecoded._id
+    const boards = await boardService.getFullBoards(userId)
+
+    res.status(StatusCodes.OK).json(boards)
+  } catch (error) {
+    next(error)
+  }
+}
+
 const update = async (req, res, next) => {
   try {
     const boardId = req.params.id
@@ -67,5 +78,6 @@ export const boardController = {
   getDetails,
   update,
   moveCartToDifferentColumn,
-  getBoards
+  getBoards,
+  getFullBoards
 }

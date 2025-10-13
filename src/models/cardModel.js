@@ -79,7 +79,6 @@ const createNew = async (data) => {
 }
 
 const createNewCopy = async (card, columnId, title) => {
-  console.log('🚀 ~ createNew ~ data:', card)
   if (card.sortable) {
     delete card.sortable
   }
@@ -88,7 +87,6 @@ const createNewCopy = async (card, columnId, title) => {
       ...card,
       columnId
     })
-    console.log('🚀 ~ createNewCopy ~ validData:', validData)
     const newCardToAdd = {
       ...validData,
       title: title,
@@ -100,7 +98,6 @@ const createNewCopy = async (card, columnId, title) => {
         userId: new ObjectId(comment.userId)
       })) : []
     }
-    console.log('🚀 ~ createNewCopy ~ newCardToAdd:', newCardToAdd)
     const createdCard = await GET_DB().collection(CARD_COLLECTION_NAME).insertOne(newCardToAdd)
     return createdCard
   } catch (error) {
@@ -392,6 +389,19 @@ const unwatchCard = async (cardId, userId) => {
   }
 }
 
+const updateManyCard = async (boardId, cardOrderIds) => {
+  try {
+    cardOrderIds = cardOrderIds?.map(id => new ObjectId(id))
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).updateMany(
+      { _id: { $in: cardOrderIds } },
+      { $set: { boardId: new ObjectId(boardId) } }
+    )
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const cardModel = {
   CARD_COLLECTION_NAME,
   CARD_COLLECTION_SCHEMA,
@@ -412,5 +422,6 @@ export const cardModel = {
   unwatchCard,
   createNewMany,
   getCardsByIds,
-  createNewCopy
+  createNewCopy,
+  updateManyCard
 }
