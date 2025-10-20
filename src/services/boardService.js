@@ -107,9 +107,13 @@ const moveCartToDifferentColumn = async (reqBody) => {
       updatedAt: Date.now()
     })
     //B3: Cập nhật lại trường columnId mới của cái Card đã kéo
-    await cardModel.update(reqBody.currentCardId, {
+    let dataCardUpdate = {
       columnId: reqBody.nextColumnId
-    })
+    }
+    if (reqBody.targetBoardId) {
+      dataCardUpdate.boardId = reqBody.targetBoardId
+    }
+    await cardModel.update(reqBody.currentCardId, dataCardUpdate)
     return { updateResult: 'Successfully!' }
   } catch (error) {
     throw error
