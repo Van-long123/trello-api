@@ -58,7 +58,7 @@ const CARD_COLLECTION_SCHEMA = Joi.object({
   isCompleted: Joi.boolean().default(false)
 })
 
-const INVALID_UPDATE_FIELDS = ['_id', 'boardId', 'createdAt']
+const INVALID_UPDATE_FIELDS = ['_id', 'createdAt']
 
 const validateBeforeCreate = async (data) => {
   return await CARD_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
@@ -157,6 +157,7 @@ const update = async (cardId, updateData) => {
 
     //Đối với dữ liệu liên quan tới ObjectId biến đổi ở đây
     if (updateData.columnId) updateData.columnId = new ObjectId(updateData.columnId)
+    if (updateData.boardId) updateData.boardId = new ObjectId(updateData.boardId)
 
     const result = await GET_DB().collection(CARD_COLLECTION_NAME).findOneAndUpdate(
       { _id: new ObjectId(cardId) },
