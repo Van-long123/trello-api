@@ -135,6 +135,17 @@ const getCardsByIds = async (ids) => {
   }
 }
 
+const getCardsByShareToken = async (shareToken) => {
+  try {
+    const card = await GET_DB().collection(CARD_COLLECTION_NAME).findOne({
+      shareToken: shareToken
+    })
+    return card
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 const findOneById = async (id) => {
   try {
     const result = await GET_DB().collection(CARD_COLLECTION_NAME).findOne({
@@ -424,5 +435,6 @@ export const cardModel = {
   createNewMany,
   getCardsByIds,
   createNewCopy,
-  updateManyCard
+  updateManyCard,
+  getCardsByShareToken
 }

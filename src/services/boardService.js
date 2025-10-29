@@ -61,6 +61,16 @@ const getDetails = async (userId, boardId) => {
   }
 }
 
+const getShare = async (boardId) => {
+  try {
+    const board = await boardModel.getShare(boardId)
+    if (!board) throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found!')
+    return board
+  } catch (error) {
+    throw error
+  }
+}
+
 const getFullBoards = async (userId) => {
   try {
     const boards = await boardModel.getFullBoards(userId)
@@ -126,5 +136,6 @@ export const boardService = {
   update,
   moveCartToDifferentColumn,
   getBoards,
-  getFullBoards
+  getFullBoards,
+  getShare
 }

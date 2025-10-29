@@ -209,6 +209,41 @@ const getDetails = async (userId, boardId) => {
   }
 }
 
+const getShare = async (boardId) => {
+  try {
+    // User truy cập vào board cụ thể thì nó phải là thành viên của board đó
+    const queryConditions = [
+      { _id: new ObjectId(boardId) },
+      { _destroy: false }
+    ]
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate([
+      // $match kiểu chính xác lọc dữ liệu
+      { $match: { $and: queryConditions } },
+      { $lookup: {
+        from: userModel.USER_COLLECTION_NAME,
+        localField: 'ownerIds',
+        foreignField: '_id',
+        as: 'owners',
+        // pipeline trong lookup là để xử lý một hoặc nhiều luông cần thiết
+        // $project để chỉ định vài field không muốn lấy về bằng cách gán nó giá trị
+        pipeline: [{ $project: { 'password':0, 'verifyToken':0 } }]
+      } },
+      { $lookup: {
+        from: userModel.USER_COLLECTION_NAME,
+        localField: 'memberIds',
+        foreignField: '_id',
+        as: 'members',
+        // pipeline trong lookup là để xử lý một hoặc nhiều luông cần thiết
+        // $project để chỉ định vài field không muốn lấy về bằng cách gán nó giá trị
+        pipeline: [{ $project: { 'password':0, 'verifyToken':0 } }]
+      } }
+    ]).toArray()
+    return result[0] || null
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 const getFullBoards = async (userId) => {
   try {
     // User truy cập vào board cụ thể thì nó phải là thành viên của board đó
@@ -390,5 +425,6 @@ export const boardModel = {
   pullColumnOrderIds,
   getBoards,
   pushMemberIds,
-  getFullBoards
+  getFullBoards,
+  getShare
 }

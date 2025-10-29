@@ -1,6 +1,7 @@
 import { cardModel } from '~/models/cardModel'
 import { columnModel } from '~/models/columnModel'
 import { CloudinaryProvider } from '~/providers/cloudinaryProvider'
+import { v4 as uuidv4 } from 'uuid'
 
 const createNew = async (reqBody) => {
   try {
@@ -117,11 +118,33 @@ const createNewCopy = async (reqBody) => {
   }
 }
 
+const shareCard = async (cardId) => {
+  try {
+    const updatedCard = await cardModel.update(cardId, {
+      shareToken: uuidv4().split('-')[0]
+    })
+    return updatedCard
+  } catch (error) {
+    throw error
+  }
+}
+
+const publicCard = async (shareToken) => {
+  try {
+    const card = await cardModel.getCardsByShareToken(shareToken)
+    return card
+  } catch (error) {
+    throw error
+  }
+}
+
 export const cardService = {
   createNew,
   update,
   createAttachInCard,
   watchCard,
   unwatchCard,
-  createNewCopy
+  createNewCopy,
+  shareCard,
+  publicCard
 }
