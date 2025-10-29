@@ -17,12 +17,12 @@ router.get('/status', (req, res) => {
   })
 })
 /** Board APIs */
-router.use('/boards', authMiddleware.isAuthorized, boardRoute)
+router.use('/boards', boardRoute)
 /** Columns APIs */
 
 router.use('/columns', authMiddleware.isAuthorized, columnRoute)
 /** Cards APIs */
-router.use('/cards', authMiddleware.isAuthorized, cardRoute)
+router.use('/cards', cardRoute)
 
 /** User APIs */
 router.use('/users', userRoute)

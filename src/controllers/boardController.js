@@ -32,8 +32,21 @@ const createNew = async (req, res, next) => {
 const getDetails = async (req, res, next) => {
   try {
     const userId = req.jwtDecoded._id
+    console.log('🚀 ~ getDetails ~ userId:', userId)
+    console.log('🚀 ~ getDetails ~ userId:', req.params.id)
     const boardId = req.params.id
     const board = await boardService.getDetails(userId, boardId)
+
+    res.status(StatusCodes.OK).json(board)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const getShare = async (req, res, next) => {
+  try {
+    const boardId = req.params.id
+    const board = await boardService.getShare(boardId)
 
     res.status(StatusCodes.OK).json(board)
   } catch (error) {
@@ -79,5 +92,6 @@ export const boardController = {
   update,
   moveCartToDifferentColumn,
   getBoards,
-  getFullBoards
+  getFullBoards,
+  getShare
 }
