@@ -25,7 +25,7 @@ Dự án này là một API backend toàn diện, mô phỏng đầy đủ các 
 - **Mời Thành Viên**: Hệ thống mời người dùng tham gia bảng
 - **Thông Báo Thời Gian Thực**: Tích hợp Socket.IO cho cập nhật tức thì
 - **Upload Hình Ảnh**: Tích hợp Cloudinary để lưu trữ và quản lý hình ảnh
-- **Gửi Email**: Tích hợp Brevo API để gửi email thông báo và xác thực
+- **Gửi Email**: Tích hợp NodeMailer để gửi email thông báo và xác thực
 
 ### Tính Năng Kỹ Thuật
 
@@ -271,4 +271,5 @@ Socket lắng nghe sự kiện từ client và phát tín hiệu đến các cli
 ### Cloudinary (Image Hosting)
 
 Cloudinary được tích hợp để lưu trữ hình ảnh như ảnh đại diện người dùng và hình ảnh đại diện cho thẻ.
+
 
