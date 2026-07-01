@@ -6,16 +6,12 @@ import { cardRoute } from './cardRoute'
 import { userRoute } from './userRoute'
 import { authMiddleware } from '~/middlewares/authMiddleware'
 import { invitationRoute } from './invitationRoute'
+import { healthRoute } from './healthRoute'
 
 const router = express.Router()
 
-/** Check APIs V1/status */
-router.get('/status', (req, res) => {
-  res.status(StatusCodes.OK).json({
-    message: 'APIs V1 are ready to use',
-    code: StatusCodes.OK
-  })
-})
+/** Health check APIs V1 */
+router.use('/', healthRoute)
 /** Board APIs */
 router.use('/boards', boardRoute)
 /** Columns APIs */
